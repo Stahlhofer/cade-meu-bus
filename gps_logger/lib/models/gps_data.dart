@@ -1,0 +1,85 @@
+import 'package:intl/intl.dart';
+
+class GPSPoint {
+  final double latitude;
+  final double longitude;
+  final double speed;
+  final DateTime timestamp;
+
+  GPSPoint({
+    required this.latitude,
+    required this.longitude,
+    required this.speed,
+    required this.timestamp,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'latitude': latitude,
+      'longitude': longitude,
+      'speed': speed,
+      'timestamp': DateFormat(
+        'yyyy-MM-dd HH:mm:ss',
+      ).format(timestamp),
+      'unix_timestamp': timestamp.millisecondsSinceEpoch,
+    };
+  }
+
+  factory GPSPoint.fromJson(Map<String, dynamic> json) {
+    return GPSPoint(
+      latitude: json['latitude'] as double,
+      longitude: json['longitude'] as double,
+      speed: json['speed'] as double,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(
+        json['unix_timestamp'] as int,
+      ),
+    );
+  }
+}
+
+class GPSSession {
+  final String sessionId;
+  final DateTime startTime;
+  DateTime? endTime;
+  final List<GPSPoint> points;
+
+  GPSSession({
+    required this.sessionId,
+    required this.startTime,
+    this.endTime,
+    List<GPSPoint>? points,
+  }) : points = points ?? [];
+
+  Map<String, dynamic> toJson() {
+    return {
+      'session_id': sessionId,
+      'start_time': DateFormat(
+        'yyyy-MM-dd HH:mm:ss',
+      ).format(startTime),
+      'end_time': endTime != null
+          ? DateFormat('yyyy-MM-dd HH:mm:ss').format(endTime!)
+          : null,
+      'start_unix': startTime.millisecondsSinceEpoch,
+      'end_unix': endTime?.millisecondsSinceEpoch,
+      'points_count': points.length,
+      'points': points.map((p) => p.toJson()).toList(),
+    };
+  }
+
+  factory GPSSession.fromJson(Map<String, dynamic> json) {
+    return GPSSession(
+      sessionId: json['session_id'] as String,
+      startTime: DateTime.fromMillisecondsSinceEpoch(
+        json['start_unix'] as int,
+      ),
+      endTime: json['end_unix'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(
+              json['end_unix'] as int,
+            )
+          : null,
+      points: (json['points'] as List)
+          .map((p) => GPSPoint.fromJson(p as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
