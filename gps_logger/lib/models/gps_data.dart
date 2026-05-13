@@ -59,24 +59,25 @@ class GPSSession {
       'end_time': endTime != null
           ? DateFormat('yyyy-MM-dd HH:mm:ss').format(endTime!)
           : null,
-      'start_unix': startTime.millisecondsSinceEpoch,
-      'end_unix': endTime?.millisecondsSinceEpoch,
       'points_count': points.length,
       'points': points.map((p) => p.toJson()).toList(),
     };
   }
 
   factory GPSSession.fromJson(Map<String, dynamic> json) {
+    print(json['end_time']);
     return GPSSession(
       sessionId: json['session_id'] as String,
-      startTime: DateTime.fromMillisecondsSinceEpoch(
-        json['start_unix'] as int,
-      ),
-      endTime: json['end_unix'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(
-              json['end_unix'] as int,
-            )
-          : null,
+      startTime:
+          DateFormat(
+            'yyyy-MM-dd HH:mm:ss',
+          ).tryParse(json['start_time']) ??
+          DateTime.now(),
+
+      endTime: DateFormat(
+        'yyyy-MM-dd HH:mm:ss',
+      ).tryParse(json['end_time']),
+
       points: (json['points'] as List)
           .map((p) => GPSPoint.fromJson(p as Map<String, dynamic>))
           .toList(),

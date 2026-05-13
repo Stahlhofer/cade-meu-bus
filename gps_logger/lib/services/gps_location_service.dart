@@ -83,7 +83,8 @@ class GPSLocationService {
             final gpsPoint = GPSPoint(
               latitude: position.latitude,
               longitude: position.longitude,
-              speed: position.speed,
+              // speed: position.speed,
+              speed: 0.0,
               timestamp: DateTime.now(),
             );
 

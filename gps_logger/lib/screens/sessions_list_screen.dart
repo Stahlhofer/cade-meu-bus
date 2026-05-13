@@ -20,15 +20,61 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
   @override
   void initState() {
     super.initState();
+    _loadSessions();
+  }
+
+  void _loadSessions() {
     _sessionsFuture = widget.storage.getSessions();
+  }
+
+  Future<void> _deleteSession(GPSSession session) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir sessao?'),
+        content: const Text(
+          'Essa acao remove o arquivo de log desta sessao.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    await widget.storage.deleteSession(session.sessionId);
+    if (!mounted) return;
+
+    setState(_loadSessions);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Sessao excluida')));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sessões Gravadas'),
+        title: const Text('Sessoes Gravadas'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () => setState(_loadSessions),
+            icon: Icon(Icons.refresh),
+          ),
+        ],
       ),
       body: FutureBuilder<List<GPSSession>>(
         future: _sessionsFuture,
@@ -40,7 +86,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Erro ao carregar sessões: ${snapshot.error}',
+                'Erro ao carregar sessoes: ${snapshot.error}',
               ),
             );
           }
@@ -49,7 +95,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
 
           if (sessions.isEmpty) {
             return const Center(
-              child: Text('Nenhuma sessão gravada ainda'),
+              child: Text('Nenhuma sessao gravada ainda'),
             );
           }
 
@@ -88,7 +134,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                     ),
                   ),
                   title: Text(
-                    'Sessão ${index + 1}',
+                    'Sessao ${index + 1}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -96,11 +142,11 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Início: $startTime'),
+                      Text('Inicio: $startTime'),
                       Text('Pontos: $pointsCount'),
                       if (isActive)
                         const Text(
-                          'Em gravação...',
+                          'Em gravacao...',
                           style: TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
@@ -108,9 +154,22 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                         ),
                     ],
                   ),
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                    color: Theme.of(context).primaryColor,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: 'Excluir sessao',
+                        onPressed: isActive
+                            ? null
+                            : () => _deleteSession(session),
+                        icon: const Icon(Icons.delete_outline),
+                        color: Colors.red,
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ],
                   ),
                   onTap: () {
                     Navigator.of(context).push(
