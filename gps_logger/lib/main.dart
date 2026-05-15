@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'services/gps_storage.dart';
 
+import 'package:permission_handler/permission_handler.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -29,4 +31,8 @@ class MyApp extends StatelessWidget {
       home: HomeScreen(storage: storage),
     );
   }
+}
+
+Future<void> pedirPermissao() async {
+  await Permission.storage.request();
 }

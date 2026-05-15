@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../models/gps_data.dart';
+import 'package:path_provider/path_provider.dart';
 
 class GPSJsonStorage {
   static const String logsDirectoryPath = './assets/logs';
