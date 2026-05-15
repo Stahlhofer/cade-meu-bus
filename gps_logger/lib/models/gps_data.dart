@@ -73,11 +73,10 @@ class GPSSession {
             'yyyy-MM-dd HH:mm:ss',
           ).tryParse(json['start_time']) ??
           DateTime.now(),
+      endTime: null,
 
-      endTime: DateFormat(
-        'yyyy-MM-dd HH:mm:ss',
-      ).tryParse(json['end_time']),
-
+      // endTime:
+      //     DateFormat('yyyy-MM-dd HH:mm:ss').tryParse(json['end_time'])
       points: (json['points'] as List)
           .map((p) => GPSPoint.fromJson(p as Map<String, dynamic>))
           .toList(),

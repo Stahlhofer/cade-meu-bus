@@ -5,13 +5,17 @@ import '../models/gps_data.dart';
 
 class GPSJsonStorage {
   static const String logsDirectoryPath = './assets/logs';
+
   late Directory _logsDirectory;
 
   Future<void> initialize() async {
-    _logsDirectory = Directory(logsDirectoryPath);
-    if (!await _logsDirectory.exists()) {
-      await _logsDirectory.create(recursive: true);
-    }
+    Directory.current;
+    _logsDirectory = Directory(
+      '${Directory.current.path}/assets/logs',
+    );
+    // if (!await _logsDirectory.exists()) {
+    //   await _logsDirectory.create(recursive: true);
+    // }
   }
 
   Future<Directory> get logsDirectory async {
