@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/gps_data.dart';
 import '../services/gps_storage.dart';
@@ -103,8 +104,11 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
             itemCount: sessions.length,
             itemBuilder: (context, index) {
               final session = sessions[index];
-              final startTime =
-                  '${session.startTime.day}/${session.startTime.month}/${session.startTime.year} ${session.startTime.hour}:${session.startTime.minute.toString().padLeft(2, '0')}';
+              // final startTime =
+              //     '${session.startTime.day}/${session.startTime.month}/${session.startTime.year} ${session.startTime.hour}:${session.startTime.minute.toString().padLeft(2, '0')}';
+              String startTime = DateFormat(
+                'HH:MM:ss dd-MM-yyyy',
+              ).format(session.startTime);
               final pointsCount = session.points.length;
               final isActive = session.endTime == null;
 

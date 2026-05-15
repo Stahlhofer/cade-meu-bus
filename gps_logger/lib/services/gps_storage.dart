@@ -5,18 +5,19 @@ import '../models/gps_data.dart';
 import 'package:path_provider/path_provider.dart';
 
 class GPSJsonStorage {
-  static const String logsDirectoryPath = './assets/logs';
+  // static const String logsDirectoryPath = './assets/logs';
 
   late Directory _logsDirectory;
 
   Future<void> initialize() async {
-    Directory.current;
-    _logsDirectory = Directory(
-      '${Directory.current.path}/assets/logs',
-    );
-    // if (!await _logsDirectory.exists()) {
-    //   await _logsDirectory.create(recursive: true);
-    // }
+    Directory appDocDirectory =
+        await getApplicationDocumentsDirectory();
+
+    _logsDirectory = Directory('${appDocDirectory.path}/assets/logs');
+
+    if (!await _logsDirectory.exists()) {
+      await _logsDirectory.create(recursive: true);
+    }
   }
 
   Future<Directory> get logsDirectory async {
@@ -43,7 +44,7 @@ class GPSJsonStorage {
             ..sort((a, b) => a.path.compareTo(b.path));
 
       final sessions = <GPSSession>[];
-
+      print(sessions.length);
       for (final file in files) {
         final content = await file.readAsString();
         if (content.trim().isEmpty) continue;

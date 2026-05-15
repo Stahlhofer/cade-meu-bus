@@ -97,6 +97,7 @@ class GPSLocationService {
             print(
               'GPS registrado: ${gpsPoint.latitude}, ${gpsPoint.longitude}, ${gpsPoint.speed}m/s',
             );
+            print('${_currentSession!.points.length}');
           },
           onError: (error) {
             print('Erro ao receber posição: $error');
