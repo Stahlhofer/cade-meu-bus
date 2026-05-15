@@ -32,9 +32,9 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Excluir sessao?'),
+        title: const Text('Excluir sessão?'),
         content: const Text(
-          'Essa acao remove o arquivo de log desta sessao.',
+          'Essa ação remove o arquivo de log desta sessão.',
         ),
         actions: [
           TextButton(
@@ -61,14 +61,14 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
     setState(_loadSessions);
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Sessao excluida')));
+    ).showSnackBar(const SnackBar(content: Text('sessão excluída')));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sessoes Gravadas'),
+        title: const Text('sessões Gravadas'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -87,7 +87,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Erro ao carregar sessoes: ${snapshot.error}',
+                'Erro ao carregar sessões: ${snapshot.error}',
               ),
             );
           }
@@ -96,7 +96,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
 
           if (sessions.isEmpty) {
             return const Center(
-              child: Text('Nenhuma sessao gravada ainda'),
+              child: Text('Nenhuma sessão gravada ainda'),
             );
           }
 
@@ -109,6 +109,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
               String startTime = DateFormat(
                 'HH:MM:ss dd-MM-yyyy',
               ).format(session.startTime);
+
               final pointsCount = session.points.length;
               final isActive = session.endTime == null;
 
@@ -138,7 +139,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                     ),
                   ),
                   title: Text(
-                    'Sessao ${index + 1}',
+                    'sessão ${session.sessionId.substring(session.sessionId.length - 4)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -150,7 +151,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                       Text('Pontos: $pointsCount'),
                       if (isActive)
                         const Text(
-                          'Em gravacao...',
+                          'Em gravação...',
                           style: TextStyle(
                             color: Colors.red,
                             fontWeight: FontWeight.bold,
@@ -162,7 +163,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        tooltip: 'Excluir sessao',
+                        tooltip: 'Excluir sessão',
                         onPressed: isActive
                             ? null
                             : () => _deleteSession(session),
@@ -178,8 +179,12 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            SessionDetailScreen(session: session),
+                        builder: (context) => SessionDetailScreen(
+                          session: session,
+                          storage: widget.storage,
+                          onSessionDeleted: () =>
+                              setState(_loadSessions),
+                        ),
                       ),
                     );
                   },

@@ -26,7 +26,17 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _locationService = GPSLocationService(storage: widget.storage);
+    _locationService = GPSLocationService(
+      storage: widget.storage,
+      onPointRecorded: (session, point) {
+        if (!mounted) return;
+
+        setState(() {
+          _currentSession = session;
+          _pointsCount = session.points.length;
+        });
+      },
+    );
     _initializeApp();
   }
 
@@ -92,6 +102,18 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
+
+  String get _longitude =>
+      _currentSession?.points.lastOrNull?.longitude.toStringAsFixed(
+        2,
+      ) ??
+      'N/A';
+
+  String get _latitude =>
+      _currentSession?.points.lastOrNull?.latitude.toStringAsFixed(
+        2,
+      ) ??
+      'N/A';
 
   @override
   void dispose() {
@@ -335,30 +357,46 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 15),
 
               // listagem das ultimas posições
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Ultimas posições registradas',
-                      style: Theme.of(context).textTheme.labelSmall,
+              !_isRecording
+                  ? Container()
+                  : Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Ultimas posições registradas',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.labelSmall,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            // '',
+                            'Longitude $_longitude',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          ),
+                          Text(
+                            // '',
+                            'Latitude $_latitude',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 2,
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _filePath,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),

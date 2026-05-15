@@ -1,13 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:gps_logger/services/gps_storage.dart';
 import 'package:intl/intl.dart';
 import 'dart:math';
 
 import '../models/gps_data.dart';
 
 class SessionDetailScreen extends StatelessWidget {
+  final GPSJsonStorage storage;
   final GPSSession session;
+  final void Function() onSessionDeleted;
 
-  const SessionDetailScreen({super.key, required this.session});
+  const SessionDetailScreen({
+    super.key,
+    required this.session,
+    required this.storage,
+    required this.onSessionDeleted,
+  });
+
+  Future<void> _deleteSession(
+    GPSSession session,
+    BuildContext context,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir sessão?'),
+        content: const Text(
+          'Essa ação remove o arquivo de log desta sessão.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    await storage.deleteSession(session.sessionId);
+    // if (!mounted) return;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +99,18 @@ class SessionDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Detalhes da Sessão'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Excluir sessão',
+            onPressed: () async {
+              await _deleteSession(session, context);
+              onSessionDeleted.call();
+              Navigator.of(context).pop();
+            },
+            icon: const Icon(Icons.delete_outline),
+            color: Colors.red,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -110,19 +164,19 @@ class SessionDetailScreen extends StatelessWidget {
                       ),
                       _InfoRow(
                         'Latitude Mín:',
-                        '${minLat.toStringAsFixed(6)}',
+                        minLat.toStringAsFixed(6),
                       ),
                       _InfoRow(
                         'Latitude Máx:',
-                        '${maxLat.toStringAsFixed(6)}',
+                        maxLat.toStringAsFixed(6),
                       ),
                       _InfoRow(
                         'Longitude Mín:',
-                        '${minLon.toStringAsFixed(6)}',
+                        minLon.toStringAsFixed(6),
                       ),
                       _InfoRow(
                         'Longitude Máx:',
-                        '${maxLon.toStringAsFixed(6)}',
+                        maxLon.toStringAsFixed(6),
                       ),
                       _InfoRow(
                         'Distância Aproximada:',

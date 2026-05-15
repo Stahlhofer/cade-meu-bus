@@ -8,12 +8,14 @@ import 'gps_storage.dart';
 class GPSLocationService {
   static const int updateIntervalSeconds = 60; // 1 minuto
   final GPSJsonStorage storage;
+  final void Function(GPSSession session, GPSPoint point)?
+  onPointRecorded;
 
   StreamSubscription<Position>? _positionStreamSubscription;
   GPSSession? _currentSession;
   bool _isRecording = false;
 
-  GPSLocationService({required this.storage});
+  GPSLocationService({required this.storage, this.onPointRecorded});
 
   bool get isRecording => _isRecording;
 
@@ -93,10 +95,12 @@ class GPSLocationService {
 
             // Atualiza a sessão no armazenamento
             await storage.updateSession(_currentSession!);
+            onPointRecorded?.call(_currentSession!, gpsPoint);
 
             print(
               'GPS registrado: ${gpsPoint.latitude}, ${gpsPoint.longitude}, ${gpsPoint.speed}m/s',
             );
+
             print('${_currentSession!.points.length}');
           },
           onError: (error) {

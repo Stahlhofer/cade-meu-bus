@@ -67,29 +67,36 @@ class GPSSession {
   }
 
   factory GPSSession.fromJson(Map<String, dynamic> json) {
-    print([json['start_time'], json['end_time']]);
+    // print(['START ${json['start_time']}', 'END ${json['end_time']}']);
+
+    String? unix = json.containsKey('end_unix')
+        ? json['end_unix'].toString()
+        : null;
+
+    String? normal = json.containsKey('end_time')
+        ? json['end_time'].toString()
+        : null;
+
+    // print("ENDTIME ${unix ?? normal ?? 00000}");
+
+    DateTime? endTime;
+
+    if (int.tryParse(unix ?? '') != null) {
+      endTime = DateTime.fromMillisecondsSinceEpoch(int.parse(unix!));
+    } else if (normal != null) {
+      endTime = DateFormat('yyyy-MM-dd HH:mm:ss').tryParse(normal);
+    }
 
     return GPSSession(
       sessionId: json['session_id'] as String,
+
       startTime:
           DateFormat(
             'yyyy-MM-dd HH:mm:ss',
           ).tryParse(json['start_time']) ??
           DateTime.now(),
-      endTime:
-          DateFormat(
-            'yyyy-MM-dd HH:mm:ss',
-          ).tryParse(json['end_time']) ??
-          DateTime.now(),
 
-      // endTime: null,
-
-      // startTime: DateTime.fromMillisecondsSinceEpoch(
-      // json['start_unix'] as int,
-      // ),
-      // endTime: DateTime.fromMillisecondsSinceEpoch(
-      //   json['end_unix'] as int,
-      // ),
+      endTime: endTime,
       points: (json['points'] as List)
           .map((p) => GPSPoint.fromJson(p as Map<String, dynamic>))
           .toList(),

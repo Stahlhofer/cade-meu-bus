@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 import '../models/gps_data.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -35,18 +37,17 @@ class GPSJsonStorage {
   Future<List<GPSSession>> getSessions() async {
     try {
       final directory = await logsDirectory;
-      final files =
-          directory
-              .listSync()
-              .whereType<File>()
-              .where((file) => file.path.endsWith('.json'))
-              .toList()
-            ..sort((a, b) => a.path.compareTo(b.path));
+      final files = directory
+          .listSync()
+          .whereType<File>()
+          .where((file) => file.path.endsWith('.json'))
+          .toList();
 
       final sessions = <GPSSession>[];
-      print(sessions.length);
+      debugPrint('files.length: ${files.length}');
       for (final file in files) {
         final content = await file.readAsString();
+
         if (content.trim().isEmpty) continue;
 
         final json = jsonDecode(content) as Map<String, dynamic>;
@@ -67,6 +68,7 @@ class GPSJsonStorage {
       sessions.sort((a, b) => a.startTime.compareTo(b.startTime));
       return sessions;
     } catch (e) {
+      debugPrint('ERROR: $e');
       return [];
     }
   }
@@ -76,7 +78,7 @@ class GPSJsonStorage {
       final file = await _sessionFile(session.sessionId);
       await file.writeAsString(jsonEncode(session.toJson()));
     } catch (e) {
-      print('Erro ao adicionar sessao: $e');
+      debugPrint('Erro ao adicionar sessão: $e');
     }
   }
 
@@ -85,7 +87,7 @@ class GPSJsonStorage {
       final file = await _sessionFile(session.sessionId);
       await file.writeAsString(jsonEncode(session.toJson()));
     } catch (e) {
-      print('Erro ao atualizar sessao: $e');
+      debugPrint('Erro ao atualizar sessão: $e');
     }
   }
 
@@ -96,7 +98,7 @@ class GPSJsonStorage {
         await file.delete();
       }
     } catch (e) {
-      print('Erro ao excluir sessao: $e');
+      debugPrint('Erro ao excluir sessão: $e');
     }
   }
 
@@ -135,7 +137,7 @@ class GPSJsonStorage {
         await file.delete();
       }
     } catch (e) {
-      print('Erro ao limpar arquivos: $e');
+      debugPrint('Erro ao limpar arquivos: $e');
     }
   }
 }
