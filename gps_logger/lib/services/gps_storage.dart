@@ -2,13 +2,17 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../models/gps_data.dart';
+import 'package:path_provider/path_provider.dart';
 
 class GPSJsonStorage {
-  static const String logsDirectoryPath = './assets/logs';
+  static const String logsDirectoryPath = './logs';
   late Directory _logsDirectory;
 
   Future<void> initialize() async {
-    _logsDirectory = Directory(logsDirectoryPath);
+    final dir = await getApplicationDocumentsDirectory();
+    print(dir);
+    _logsDirectory = Directory('${dir.path}/logs');
+
     if (!await _logsDirectory.exists()) {
       await _logsDirectory.create(recursive: true);
     }
