@@ -1,0 +1,51 @@
+{
+    // Use o IntelliSense para saber mais sobre os atributos possíveis.
+    // Focalizar para exibir as descrições dos atributos existentes.
+    // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "cade_meu_bus",
+            "cwd": "cade_meu_bus",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "--dart-define-from-file=.env"
+            ]
+        },
+        {
+            "name": "cade_meu_bus (profile mode)",
+            "cwd": "cade_meu_bus",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "cade_meu_bus (release mode)",
+            "cwd": "cade_meu_bus",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "gps_logger",
+            "cwd": "gps_logger",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "gps_logger (profile mode)",
+            "cwd": "gps_logger",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "gps_logger (release mode)",
+            "cwd": "gps_logger",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}

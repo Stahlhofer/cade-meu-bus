@@ -25,7 +25,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'GPS Logger',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 20, 40, 56),
+          brightness: Brightness.dark,
+        ),
         useMaterial3: true,
       ),
       home: HomeScreen(storage: storage),
