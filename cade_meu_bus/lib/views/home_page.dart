@@ -22,6 +22,7 @@ class _HomePageState extends State<HomePage> {
 
     controller.initialize();
 
+    // WidgetsBinding.instance.addPostFrameCallback((_) {});
     controller.addListener(() {
       setState(() {});
     });

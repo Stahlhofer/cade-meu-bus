@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:geolocator/geolocator.dart';
+import 'package:gps_logger/models/bus_data.dart';
+import 'package:gps_logger/models/bus_position.dart';
+import 'package:gps_logger/services/mqtt_service.dart';
 
 import '../models/gps_data.dart';
 import 'gps_storage.dart';
@@ -20,6 +24,10 @@ class GPSLocationService {
   bool get isRecording => _isRecording;
 
   GPSSession? get currentSession => _currentSession;
+
+  final MqttService mqttService = MqttService();
+
+  bool connected = false;
 
   Future<bool> requestLocationPermission() async {
     LocationPermission permission =
@@ -58,6 +66,13 @@ class GPSLocationService {
 
     _isRecording = true;
 
+    try {
+      await mqttService.connect();
+      print(['connect', mqttService.connectionState]);
+    } catch (e) {
+      print("error on connect to the server $e");
+    }
+
     // Cria uma nova sessão
     final sessionId =
         'session_${DateTime.now().millisecondsSinceEpoch}';
@@ -93,8 +108,41 @@ class GPSLocationService {
             // Adiciona o ponto à sessão
             _currentSession!.points.add(gpsPoint);
 
+            final bus = BusData(
+              busCode: 'bus01',
+              nome: '25 de Julho',
+              city: 'panambi',
+              mqttTopic: 'cade-meu-bus/panambi/bus01',
+              position: BusPosition(
+                timestamp: DateTime.now().toString(),
+                timeUnix: DateTime.now().millisecondsSinceEpoch,
+                latitude: position.latitude,
+                longitude: position.longitude,
+                speed: position.speed,
+              ),
+            );
+
+            print(mqttService.connectionState);
+
+            /// publica o paylod json para o broker mqtt
+            if (mqttService.connectionState ==
+                MqttConnectionStateCustom.idle) {
+              await mqttService.connect();
+            }
+
+            if (mqttService.connectionState ==
+                MqttConnectionStateCustom.connected) {
+              print('PUBLISHING');
+              try {
+                mqttService.publish(jsonEncode(bus.toJson()));
+              } catch (e) {
+                print(e);
+              }
+            }
+
             // Atualiza a sessão no armazenamento
             await storage.updateSession(_currentSession!);
+
             onPointRecorded?.call(_currentSession!, gpsPoint);
 
             print(
@@ -113,6 +161,7 @@ class GPSLocationService {
     if (!_isRecording || _currentSession == null) return;
 
     _isRecording = false;
+    mqttService.disconnect();
 
     // Cancela o stream
     await _positionStreamSubscription?.cancel();

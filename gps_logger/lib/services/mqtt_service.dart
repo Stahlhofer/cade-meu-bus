@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:mqtt_client/mqtt_client.dart';
@@ -36,11 +35,10 @@ class MqttService {
   Stream<BusData> get busStream => _busStreamController.stream;
 
   Future<void> connect() async {
-    print('connet begin');
     _setupClient();
 
     try {
-      print('MQTT connecting... broker $broker');
+      print('MQTT connecting...');
 
       connectionState = MqttConnectionStateCustom.connecting;
 
@@ -52,7 +50,7 @@ class MqttService {
 
         connectionState = MqttConnectionStateCustom.connected;
 
-        _subscribeToTopic();
+        // _subscribeToTopic();
       } else {
         print('MQTT failed: ${client.connectionStatus}');
 
@@ -71,12 +69,11 @@ class MqttService {
   }
 
   void _setupClient() {
-    print('setup');
+    print(broker);
 
-    // client = MqttServerClient.withPort(broker, 'cade-meu-bus', port);
     client = MqttServerClient.withPort(
       broker,
-      'cade_meu_bus_${DateTime.now().millisecondsSinceEpoch}',
+      'gps_logger_${DateTime.now().millisecondsSinceEpoch}',
       port,
     );
 
@@ -86,7 +83,7 @@ class MqttService {
 
     client.keepAlivePeriod = 20;
 
-    // client.autoReconnect = true;
+    client.autoReconnect = true;
 
     client.logging(on: false);
 
@@ -99,48 +96,46 @@ class MqttService {
     final connMessage = MqttConnectMessage()
         .authenticateAs(username, password)
         .withClientIdentifier(
-          'flutter_bus_tracker_${DateTime.now().millisecondsSinceEpoch}',
+          'gps_logger_${DateTime.now().millisecondsSinceEpoch}',
         )
         .startClean();
 
     client.connectionMessage = connMessage;
   }
 
-  void _subscribeToTopic() {
-    print('Subscribing topic: $baseTopic');
+  // void _subscribeToTopic() {
+  //   print('Subscribing topic: $baseTopic');
 
-    client.subscribe(baseTopic, MqttQos.atMostOnce);
+  //   client.subscribe(baseTopic, MqttQos.atMostOnce);
+  //   client.updates?.listen((
+  //     List<MqttReceivedMessage<MqttMessage>> events,
+  //   ) {
+  //     try {
+  //       final receivedMessage = events[0];
 
-    client.updates?.listen((
-      List<MqttReceivedMessage<MqttMessage>> events,
-    ) {
-      print('event');
-      try {
-        final receivedMessage = events[0];
+  //       final MqttPublishMessage message =
+  //           receivedMessage.payload as MqttPublishMessage;
 
-        final MqttPublishMessage message =
-            receivedMessage.payload as MqttPublishMessage;
+  //       final String payload =
+  //           MqttPublishPayload.bytesToStringAsString(
+  //             message.payload.message,
+  //           );
 
-        final String payload =
-            MqttPublishPayload.bytesToStringAsString(
-              message.payload.message,
-            );
+  //       final String topic = receivedMessage.topic;
 
-        final String topic = receivedMessage.topic;
+  //       print('TOPIC: $topic');
+  //       print('PAYLOAD: $payload');
 
-        print('TOPIC: $topic');
-        print('PAYLOAD: $payload');
+  //       final Map<String, dynamic> json = jsonDecode(payload);
 
-        final Map<String, dynamic> json = jsonDecode(payload);
+  //       final BusData busData = BusData.fromJson(json);
 
-        final BusData busData = BusData.fromJson(json);
-
-        _busStreamController.add(busData);
-      } catch (e) {
-        print('MQTT PARSE ERROR: $e');
-      }
-    });
-  }
+  //       _busStreamController.add(busData);
+  //     } catch (e) {
+  //       print('MQTT PARSE ERROR: $e');
+  //     }
+  //   });
+  // }
 
   void publish(String message) {
     final builder = MqttClientPayloadBuilder();
@@ -148,7 +143,7 @@ class MqttService {
     builder.addString(message);
 
     client.publishMessage(
-      baseTopic,
+      'cade-meu-bus/panambi/bus01',
       MqttQos.atLeastOnce,
       builder.payload!,
     );
@@ -170,8 +165,7 @@ class MqttService {
     connectionState = MqttConnectionStateCustom.disconnected;
   }
 
-  void _onSubscribed(String topic) async {
-    // client.updates.connectionState;
+  void _onSubscribed(String topic) {
     print('Subscribed to $topic');
   }
 }

@@ -31,7 +31,10 @@
             "name": "gps_logger",
             "cwd": "gps_logger",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "args": [
+                "--dart-define-from-file=.env"
+            ]
         },
         {
             "name": "gps_logger (profile mode)",
