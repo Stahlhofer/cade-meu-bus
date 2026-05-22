@@ -5,12 +5,12 @@ import 'dart:math';
 
 import '../models/gps_data.dart';
 
-class SessionDetailScreen extends StatelessWidget {
+class SessionDetailView extends StatelessWidget {
   final GPSJsonStorage storage;
   final GPSSession session;
   final void Function() onSessionDeleted;
 
-  const SessionDetailScreen({
+  const SessionDetailView({
     super.key,
     required this.session,
     required this.storage,

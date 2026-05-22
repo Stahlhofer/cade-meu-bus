@@ -26,6 +26,7 @@ class GPSJsonStorage {
     if (!await _logsDirectory.exists()) {
       await _logsDirectory.create(recursive: true);
     }
+    print(_logsDirectory);
     return _logsDirectory;
   }
 

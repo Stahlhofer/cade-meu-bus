@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:gps_logger/controllers/bus_controller.dart';
 import 'package:latlong2/latlong.dart';
 
-import '../controllers/bus_controller.dart';
-
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class MapView extends StatefulWidget {
+  const MapView({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<MapView> createState() => _MapViewState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _MapViewState extends State<MapView> {
   final BusController controller = BusController();
 
   final MapController mapController = MapController();
@@ -42,24 +41,7 @@ class _HomePageState extends State<HomePage> {
         surfaceTintColor: ColorScheme.of(context).secondary,
         centerTitle: true,
       ),
-      floatingActionButton: Container(
-        width: 120,
-        height: 60,
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: Column(
-          mainAxisAlignment: .center,
-          children: [
-            Text('Ultimo Registro', style: TextStyle(fontSize: 15)),
-            Text(
-              controller.lastRegister.split(' ').first,
-              style: TextStyle(fontSize: 20),
-            ),
-          ],
-        ),
-      ),
+      floatingActionButton: Column(),
       body: Column(
         children: [
           Container(
@@ -90,13 +72,12 @@ class _HomePageState extends State<HomePage> {
                 TileLayer(
                   urlTemplate:
                       'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                  userAgentPackageName: 'com.example.bus_tracker',
+                  userAgentPackageName: 'com.cade-meu-bus',
                 ),
 
                 /// ÔNIBUS
                 MarkerLayer(
                   markers: controller.allBuses.map((bus) {
-                    print(bus.nome);
                     return Marker(
                       point: LatLng(
                         bus.position.latitude,

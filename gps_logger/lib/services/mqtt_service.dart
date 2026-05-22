@@ -103,40 +103,6 @@ class MqttService {
     client.connectionMessage = connMessage;
   }
 
-  // void _subscribeToTopic() {
-  //   print('Subscribing topic: $baseTopic');
-
-  //   client.subscribe(baseTopic, MqttQos.atMostOnce);
-  //   client.updates?.listen((
-  //     List<MqttReceivedMessage<MqttMessage>> events,
-  //   ) {
-  //     try {
-  //       final receivedMessage = events[0];
-
-  //       final MqttPublishMessage message =
-  //           receivedMessage.payload as MqttPublishMessage;
-
-  //       final String payload =
-  //           MqttPublishPayload.bytesToStringAsString(
-  //             message.payload.message,
-  //           );
-
-  //       final String topic = receivedMessage.topic;
-
-  //       print('TOPIC: $topic');
-  //       print('PAYLOAD: $payload');
-
-  //       final Map<String, dynamic> json = jsonDecode(payload);
-
-  //       final BusData busData = BusData.fromJson(json);
-
-  //       _busStreamController.add(busData);
-  //     } catch (e) {
-  //       print('MQTT PARSE ERROR: $e');
-  //     }
-  //   });
-  // }
-
   void publish(String message) {
     final builder = MqttClientPayloadBuilder();
 
@@ -146,6 +112,7 @@ class MqttService {
       'cade-meu-bus/panambi/bus01',
       MqttQos.atLeastOnce,
       builder.payload!,
+      retain: true,
     );
   }
 

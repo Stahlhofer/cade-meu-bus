@@ -3,19 +3,18 @@ import 'package:intl/intl.dart';
 
 import '../models/gps_data.dart';
 import '../services/gps_storage.dart';
-import 'session_detail_screen.dart';
+import 'session_detail_view.dart';
 
-class SessionsListScreen extends StatefulWidget {
+class SessionsListView extends StatefulWidget {
   final GPSJsonStorage storage;
 
-  const SessionsListScreen({super.key, required this.storage});
+  const SessionsListView({super.key, required this.storage});
 
   @override
-  State<SessionsListScreen> createState() =>
-      _SessionsListScreenState();
+  State<SessionsListView> createState() => _SessionsListViewState();
 }
 
-class _SessionsListScreenState extends State<SessionsListScreen> {
+class _SessionsListViewState extends State<SessionsListView> {
   late Future<List<GPSSession>> _sessionsFuture;
 
   @override
@@ -179,7 +178,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => SessionDetailScreen(
+                        builder: (context) => SessionDetailView(
                           session: session,
                           storage: widget.storage,
                           onSessionDeleted: () =>

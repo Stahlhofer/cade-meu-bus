@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'screens/home_screen.dart';
+import 'views/home_view.dart';
 import 'services/gps_storage.dart';
 
 import 'package:permission_handler/permission_handler.dart';
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: HomeScreen(storage: storage),
+      home: HomeView(storage: storage),
     );
   }
 }

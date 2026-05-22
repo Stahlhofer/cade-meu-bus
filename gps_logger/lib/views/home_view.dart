@@ -4,18 +4,18 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 import '../models/gps_data.dart';
 import '../services/gps_location_service.dart';
 import '../services/gps_storage.dart';
-import 'sessions_list_screen.dart';
+import 'sessions_list_view.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeView extends StatefulWidget {
   final GPSJsonStorage storage;
 
-  const HomeScreen({super.key, required this.storage});
+  const HomeView({super.key, required this.storage});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeViewState extends State<HomeView> {
   late GPSLocationService _locationService;
   bool _isRecording = false;
   GPSSession? _currentSession;
@@ -314,7 +314,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) =>
-                          SessionsListScreen(storage: widget.storage),
+                          SessionsListView(storage: widget.storage),
                     ),
                   );
                 },
@@ -329,74 +329,68 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 32),
 
               // Informação de arquivo
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Arquivo de Dados',
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      _filePath,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
-                    ),
-                  ],
+              Card(
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Arquivo de Dados',
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _filePath,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
               const SizedBox(height: 15),
 
               // listagem das ultimas posições
-              !_isRecording
-                  ? Container()
-                  : Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey[300]!),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Ultimas posições registradas',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.labelSmall,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            // '',
-                            'Longitude $_longitude',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                          ),
-                          Text(
-                            // '',
-                            'Latitude $_latitude',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 2,
-                          ),
-                        ],
-                      ),
+              if (_isRecording)
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ultimas posições registradas',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.labelSmall,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          // '',
+                          'Longitude $_longitude',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                        Text(
+                          // '',
+                          'Latitude $_latitude',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                        ),
+                      ],
                     ),
+                  ),
+                ),
             ],
           ),
         ),
