@@ -1,34 +1,80 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../models/gps_data.dart';
 import '../services/gps_storage.dart';
-import 'session_detail_screen.dart';
+import 'session_detail_view.dart';
 
-class SessionsListScreen extends StatefulWidget {
+class SessionsListView extends StatefulWidget {
   final GPSJsonStorage storage;
 
-  const SessionsListScreen({super.key, required this.storage});
+  const SessionsListView({super.key, required this.storage});
 
   @override
-  State<SessionsListScreen> createState() =>
-      _SessionsListScreenState();
+  State<SessionsListView> createState() => _SessionsListViewState();
 }
 
-class _SessionsListScreenState extends State<SessionsListScreen> {
+class _SessionsListViewState extends State<SessionsListView> {
   late Future<List<GPSSession>> _sessionsFuture;
 
   @override
   void initState() {
     super.initState();
+    _loadSessions();
+  }
+
+  void _loadSessions() {
     _sessionsFuture = widget.storage.getSessions();
+  }
+
+  Future<void> _deleteSession(GPSSession session) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir sessão?'),
+        content: const Text(
+          'Essa ação remove o arquivo de log desta sessão.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    await widget.storage.deleteSession(session.sessionId);
+    if (!mounted) return;
+
+    setState(_loadSessions);
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('sessão excluída')));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sessões Gravadas'),
+        title: const Text('sessões Gravadas'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: () => setState(_loadSessions),
+            icon: Icon(Icons.refresh),
+          ),
+        ],
       ),
       body: FutureBuilder<List<GPSSession>>(
         future: _sessionsFuture,
@@ -57,8 +103,12 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
             itemCount: sessions.length,
             itemBuilder: (context, index) {
               final session = sessions[index];
-              final startTime =
-                  '${session.startTime.day}/${session.startTime.month}/${session.startTime.year} ${session.startTime.hour}:${session.startTime.minute.toString().padLeft(2, '0')}';
+              // final startTime =
+              //     '${session.startTime.day}/${session.startTime.month}/${session.startTime.year} ${session.startTime.hour}:${session.startTime.minute.toString().padLeft(2, '0')}';
+              String startTime = DateFormat(
+                'HH:MM:ss dd-MM-yyyy',
+              ).format(session.startTime);
+
               final pointsCount = session.points.length;
               final isActive = session.endTime == null;
 
@@ -88,7 +138,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                     ),
                   ),
                   title: Text(
-                    'Sessão ${index + 1}',
+                    'sessão ${session.sessionId.substring(session.sessionId.length - 4)}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -96,7 +146,7 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Início: $startTime'),
+                      Text('Inicio: $startTime'),
                       Text('Pontos: $pointsCount'),
                       if (isActive)
                         const Text(
@@ -108,15 +158,32 @@ class _SessionsListScreenState extends State<SessionsListScreen> {
                         ),
                     ],
                   ),
-                  trailing: Icon(
-                    Icons.arrow_forward_ios,
-                    color: Theme.of(context).primaryColor,
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        tooltip: 'Excluir sessão',
+                        onPressed: isActive
+                            ? null
+                            : () => _deleteSession(session),
+                        icon: const Icon(Icons.delete_outline),
+                        color: Colors.red,
+                      ),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ],
                   ),
                   onTap: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            SessionDetailScreen(session: session),
+                        builder: (context) => SessionDetailView(
+                          session: session,
+                          storage: widget.storage,
+                          onSessionDeleted: () =>
+                              setState(_loadSessions),
+                        ),
                       ),
                     );
                   },

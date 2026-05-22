@@ -1,0 +1,24 @@
+[
+  {
+    "busCode": "bus01",
+    "nome": "25 de Julho",
+    "position": {
+      "timestamp": "16:08",
+      "time_unix": "124",
+      "lat": "-28.2715789385714",
+      "lon": "-53.49445280256881",
+      "vel": "35"
+    }
+  },
+  {
+    "busCode": "bus02",
+    "nome": "Adenauer",
+    "position": {
+      "timestamp": "16:08",
+      "time_unix": "124",
+      "lat": "-28.301705361655866",
+      "lon": "-53.50766288870672",
+      "vel": "35"
+    }
+  }
+]

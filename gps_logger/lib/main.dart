@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'screens/home_screen.dart';
+import 'views/home_view.dart';
 import 'services/gps_storage.dart';
+
+import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,10 +25,17 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'GPS Logger',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 20, 40, 56),
+          brightness: Brightness.dark,
+        ),
         useMaterial3: true,
       ),
-      home: HomeScreen(storage: storage),
+      home: HomeView(storage: storage),
     );
   }
+}
+
+Future<void> pedirPermissao() async {
+  await Permission.storage.request();
 }

@@ -1,73 +1,105 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
 
 import '../models/gps_data.dart';
+import 'package:path_provider/path_provider.dart';
 
 class GPSJsonStorage {
-  static const String fileName = 'gps_sessions.json';
-  late File _file;
+  // static const String logsDirectoryPath = './assets/logs';
+
+  late Directory _logsDirectory;
 
   Future<void> initialize() async {
-    final directory = await getApplicationDocumentsDirectory();
-    _file = File('${directory.path}/$fileName');
+    Directory appDocDirectory =
+        await getApplicationDocumentsDirectory();
+
+    _logsDirectory = Directory('${appDocDirectory.path}/assets/logs');
+
+    if (!await _logsDirectory.exists()) {
+      await _logsDirectory.create(recursive: true);
+    }
   }
 
-  Future<File> get file async {
-    if (!_file.existsSync()) {
-      await _file.create(recursive: true);
-      await _file.writeAsString(jsonEncode({'sessions': []}));
+  Future<Directory> get logsDirectory async {
+    if (!await _logsDirectory.exists()) {
+      await _logsDirectory.create(recursive: true);
     }
-    return _file;
+    print(_logsDirectory);
+    return _logsDirectory;
+  }
+
+  Future<File> _sessionFile(String sessionId) async {
+    final directory = await logsDirectory;
+    return File('${directory.path}/$sessionId.json');
   }
 
   Future<List<GPSSession>> getSessions() async {
     try {
-      final file = await this.file;
-      final content = await file.readAsString();
-      final json = jsonDecode(content) as Map<String, dynamic>;
-      final sessions = (json['sessions'] as List)
-          .map((s) => GPSSession.fromJson(s as Map<String, dynamic>))
+      final directory = await logsDirectory;
+      final files = directory
+          .listSync()
+          .whereType<File>()
+          .where((file) => file.path.endsWith('.json'))
           .toList();
+
+      final sessions = <GPSSession>[];
+      debugPrint('files.length: ${files.length}');
+      for (final file in files) {
+        final content = await file.readAsString();
+
+        if (content.trim().isEmpty) continue;
+
+        final json = jsonDecode(content) as Map<String, dynamic>;
+
+        // if (json['sessions'] is List) {
+        //   sessions.addAll(
+        //     (json['sessions'] as List).map(
+        //       (s) => GPSSession.fromJson(s as Map<String, dynamic>),
+        //     ),
+        //   );
+        // } else {
+        // sessions.add(GPSSession.fromJson(json));
+        // }
+
+        sessions.add(GPSSession.fromJson(json));
+      }
+
+      sessions.sort((a, b) => a.startTime.compareTo(b.startTime));
       return sessions;
     } catch (e) {
+      debugPrint('ERROR: $e');
       return [];
     }
   }
 
   Future<void> addSession(GPSSession session) async {
     try {
-      final file = await this.file;
-      final content = await file.readAsString();
-      final json = jsonDecode(content) as Map<String, dynamic>;
-      final sessions = json['sessions'] as List;
-      sessions.add(session.toJson());
-      await file.writeAsString(jsonEncode(json));
+      final file = await _sessionFile(session.sessionId);
+      await file.writeAsString(jsonEncode(session.toJson()));
     } catch (e) {
-      print('Erro ao adicionar sessão: $e');
+      debugPrint('Erro ao adicionar sessão: $e');
     }
   }
 
   Future<void> updateSession(GPSSession session) async {
     try {
-      final file = await this.file;
-      final content = await file.readAsString();
-      final json = jsonDecode(content) as Map<String, dynamic>;
-      final sessions = json['sessions'] as List;
+      final file = await _sessionFile(session.sessionId);
+      await file.writeAsString(jsonEncode(session.toJson()));
+    } catch (e) {
+      debugPrint('Erro ao atualizar sessão: $e');
+    }
+  }
 
-      final index = sessions.indexWhere(
-        (s) =>
-            (s as Map<String, dynamic>)['session_id'] ==
-            session.sessionId,
-      );
-
-      if (index != -1) {
-        sessions[index] = session.toJson();
-        await file.writeAsString(jsonEncode(json));
+  Future<void> deleteSession(String sessionId) async {
+    try {
+      final file = await _sessionFile(sessionId);
+      if (await file.exists()) {
+        await file.delete();
       }
     } catch (e) {
-      print('Erro ao atualizar sessão: $e');
+      debugPrint('Erro ao excluir sessão: $e');
     }
   }
 
@@ -91,16 +123,22 @@ class GPSJsonStorage {
   }
 
   Future<String> getFilePath() async {
-    final file = await this.file;
-    return file.path;
+    final directory = await logsDirectory;
+    return directory.path;
   }
 
   Future<void> clear() async {
     try {
-      final file = await this.file;
-      await file.writeAsString(jsonEncode({'sessions': []}));
+      final directory = await logsDirectory;
+      final files = directory.listSync().whereType<File>().where(
+        (file) => file.path.endsWith('.json'),
+      );
+
+      for (final file in files) {
+        await file.delete();
+      }
     } catch (e) {
-      print('Erro ao limpar arquivo: $e');
+      debugPrint('Erro ao limpar arquivos: $e');
     }
   }
 }

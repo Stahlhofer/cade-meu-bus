@@ -1,24 +1,33 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:gps_logger/main.dart';
-import 'package:gps_logger/services/gps_storage.dart';
+import 'package:gps_logger/models/bus_data.dart';
+import 'package:gps_logger/models/bus_position.dart';
+import 'package:gps_logger/services/mqtt_service.dart';
 
 void main() {
-  testWidgets('GPS Logger App starts', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    final storage = GPSJsonStorage();
-    await storage.initialize();
+  test('description', () async {
+    final MqttService mqtt = MqttService();
+    try {
+      await mqtt.connect();
 
-    await tester.pumpWidget(MyApp(storage: storage));
+      final bus = BusData(
+        busCode: 'bus01',
+        nome: '25 de Julho',
+        city: 'panambi',
+        mqttTopic: 'cade-meu-bus/panambi/bus01',
+        position: BusPosition(
+          timestamp: DateTime.now().toString(),
+          timeUnix: DateTime.now().millisecondsSinceEpoch,
+          latitude: 29.0,
+          longitude: 29.0,
+          speed: 0.0,
+        ),
+      );
 
-    // Verify that the app starts and shows the GPS Logger title
-    expect(find.text('GPS Logger'), findsWidgets);
+      mqtt.publish(jsonEncode(bus.toJson()));
+    } catch (e) {
+      print(e);
+    }
   });
 }
