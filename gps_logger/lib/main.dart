@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
-import 'views/home_view.dart';
-import 'services/gps_storage.dart';
-
+import 'controllers/config_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import 'views/tracker_view.dart';
+import 'services/gps_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,7 +11,9 @@ void main() async {
   // Inicializa o armazenamento
   final storage = GPSJsonStorage();
   await storage.initialize();
+  final configController = ConfigController();
 
+  await configController.initialize();
   runApp(MyApp(storage: storage));
 }
 
@@ -31,7 +33,8 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: HomeView(storage: storage),
+      // home: HomeView(storage: storage),
+      home: TrackerView(),
     );
   }
 }

@@ -15,6 +15,16 @@ enum MqttConnectionStateCustom {
 }
 
 class MqttService {
+  static final MqttService _instance = MqttService._internal();
+
+  factory MqttService() {
+    return _instance;
+  }
+
+  MqttService._internal();
+
+  bool _initialized = false;
+
   late MqttServerClient client;
 
   final String broker = const String.fromEnvironment('MQTT_URL');
@@ -28,13 +38,15 @@ class MqttService {
 
   MqttConnectionStateCustom connectionState =
       MqttConnectionStateCustom.idle;
-
   final StreamController<BusData> _busStreamController =
       StreamController<BusData>.broadcast();
 
   Stream<BusData> get busStream => _busStreamController.stream;
 
   Future<void> connect() async {
+    if (_initialized) return;
+
+    _initialized = true;
     _setupClient();
 
     try {
@@ -83,7 +95,7 @@ class MqttService {
 
     client.keepAlivePeriod = 20;
 
-    client.autoReconnect = true;
+    // client.autoReconnect = true;
 
     client.logging(on: false);
 
@@ -103,16 +115,16 @@ class MqttService {
     client.connectionMessage = connMessage;
   }
 
-  void publish(String message) {
+  void publishJson({required String topic, required String json}) {
+    print("PUBLISHING: $topic, $json");
     final builder = MqttClientPayloadBuilder();
 
-    builder.addString(message);
+    builder.addString(json);
 
     client.publishMessage(
-      'cade-meu-bus/panambi/bus01',
+      topic,
       MqttQos.atLeastOnce,
       builder.payload!,
-      retain: true,
     );
   }
 
