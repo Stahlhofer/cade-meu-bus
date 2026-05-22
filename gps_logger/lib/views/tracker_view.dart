@@ -43,6 +43,8 @@ class _TrackerViewState extends State<TrackerView> {
         title: const Text('Cadê Meu Bus'),
         centerTitle: true,
       ),
+      // todo - implementar botão que inicia e encerra o envio de posição GPS
+      // todo - implementar start e stop recording no session service
       floatingActionButton: loadConfigButton(context),
       body: Column(
         children: [
