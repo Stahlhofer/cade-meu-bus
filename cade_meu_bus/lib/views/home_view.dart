@@ -34,6 +34,17 @@ class _HomeViewState extends State<HomeView> {
     super.dispose();
   }
 
+  // todo - implementar logica de validação
+  /// o aplicativo deve realizar uma pequena validação dos dados de ônibus recebidos
+  /// visto que atualmente, um novo ônibus é adicionado a cada novo codigo de pacote
+  /// mesmo que seja informado apenas 1 pacote.
+  ///
+  /// O aplicativo deve validar e remover cadastros inválidos, ou que estejam inativos por um determinado período
+  // todo - implementar botão de centralização fixada em ônibus, baseado no toque do icone.
+  /// a visualização do mapa pode ficar fixa em um determinado ônibus, sendo necessário apenas apertar sobre o icone
+  /// do onibus, mas a ainda deve permitir navegar, aumentar ou diminuir zoom, etc
+  // todo - implementar direção fixa do icone do onibus para o topo da tela
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,6 +114,7 @@ class _HomeViewState extends State<HomeView> {
                       ),
                       width: 200,
                       height: 100,
+                      rotate: true,
 
                       child: Column(
                         children: [
