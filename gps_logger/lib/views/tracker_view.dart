@@ -36,93 +36,149 @@ class _TrackerViewState extends State<TrackerView> {
 
   @override
   Widget build(BuildContext context) {
-    print("pontos ${controller.counter}");
+    print("simulando? ${controller.simulation}");
+    print("pontos enviados ${controller.counter}");
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cadê Meu Bus'),
+        title: const Text('LOGGER - CADÊ MEU BUS?'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ConfigView(trackerController: controller),
+                ),
+              );
+
+              // showDialog(
+              //   context: context,
+              //   builder: (_) {
+              //     return Dialog(
+              //       backgroundColor: Colors.white,
+              //       shape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(24),
+              //       ),
+              //       child: ClipRRect(
+              //         borderRadius: BorderRadius.circular(24),
+              //         child: SizedBox(
+              //           width: 400,
+              //           height: 343,
+              //           child: ConfigView(),
+              //         ),
+              //       ),
+              //     );
+              //   },
+              // );
+            },
+          ),
+        ],
       ),
-      // todo - implementar botão que inicia e encerra o envio de posição GPS
-      // todo - implementar start e stop recording no session service
-      floatingActionButton: loadConfigButton(context),
+      floatingActionButton: _buildSessionFAB(),
       body: Column(
         children: [
-          /// STATUS BAR
-          loadStatusBar(),
+          /// STATUS BAR - Apenas conexão MQTT
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
+            color: controller.connected ? Colors.green : Colors.red,
+            child: Center(
+              child: Text(
+                controller.connected
+                    ? 'SERVIDOR CONECTADO'
+                    : 'SERVIDOR DESCONECTADO',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
 
           /// MAPA
           Expanded(
-            child: FlutterMap(
-              options: MapOptions(
-                initialCenter: const LatLng(
-                  -28.290912713706224,
-                  -53.499054137856284,
-                ),
-                initialZoom: 15,
-              ),
-
+            child: Stack(
               children: [
-                TileLayer(
-                  urlTemplate:
-                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                FlutterMap(
+                  options: MapOptions(
+                    initialCenter: const LatLng(
+                      -28.290912713706224,
+                      -53.499054137856284,
+                    ),
+                    initialZoom: 15,
+                    interactionOptions: const InteractionOptions(
+                      // conjunto de bits
+                      // .all obtém o codigo de todos (todos os bits em 1)
+                      // "~" .rotate obtém o codigo inverso (bit em 0)
+                      // "&" converge os bits de .all e ~.rotate num unico conjunto, ativando todas as opções menos o rotate
+                      // flags:
+                      //     InteractiveFlag.all &
+                      //     ~InteractiveFlag.rotate,
+                    ),
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.example.bus_tracker',
+                    ),
+                    MarkerLayer(
+                      rotate: true,
+                      markers: controller.buses.values.map((bus) {
+                        String vel =
+                            "${bus.position.speed.toStringAsFixed(1)} km/h";
 
-                  userAgentPackageName: 'com.example.bus_tracker',
-                ),
-
-                MarkerLayer(
-                  markers: controller.buses.values.map((bus) {
-                    String vel =
-                        "${bus.position.speed.toStringAsFixed(1)} km/h";
-
-                    return Marker(
-                      point: LatLng(
-                        bus.position.latitude,
-                        bus.position.longitude,
-                      ),
-
-                      width: 200,
-
-                      height: 120,
-
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-
-                            child: Column(
-                              children: [
-                                Text(
+                        return Marker(
+                          point: LatLng(
+                            bus.position.latitude,
+                            bus.position.longitude,
+                          ),
+                          width: 200,
+                          height: 120,
+                          child: Column(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(
+                                    8,
+                                  ),
+                                ),
+                                child: Text(
                                   " ${bus.nome.toUpperCase()} - $vel",
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontWeight: .w600,
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Icon(
+                                Icons.directions_bus,
+                                size: 48,
+                                color: Colors.blue,
+                              ),
+                            ],
                           ),
-
-                          const SizedBox(height: 6),
-
-                          const Icon(
-                            Icons.directions_bus,
-                            size: 48,
-                            color: Colors.blue,
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 ),
+
+                /// Informações no topo superior direito
+                loadTrackInfo(),
               ],
             ),
           ),
@@ -131,147 +187,106 @@ class _TrackerViewState extends State<TrackerView> {
     );
   }
 
-  Container loadStatusBar() {
-    return Container(
-      width: double.infinity,
-
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 6,
-      ),
-
-      color: controller.connected ? Colors.green : Colors.red,
-
-      child: Stack(
-        alignment: Alignment.center,
-
-        children: [
-          /// STATUS CENTRAL
-          Center(
-            child: Text(
-              controller.connected
-                  ? 'MQTT CONNECTED'
-                  : 'MQTT DISCONNECTED',
-
-              style: const TextStyle(
-                fontSize: 20,
-
-                fontWeight: FontWeight.bold,
-
-                color: Colors.white,
+  Widget loadTrackInfo() {
+    // if (!controller.sessionActive) return SizedBox.shrink();
+    return Positioned(
+      top: 10,
+      right: 10,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: 8,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(50),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!controller.sessionActive)
+              SizedBox.shrink()
+            else ...[
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Pontos Enviados',
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontSize: 11,
+                    ),
+                  ),
+                  Text(
+                    controller.counter.toString(),
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ),
-
-          /// INFO DIREITA
-          Align(
-            alignment: Alignment.centerRight,
-
-            child: Row(
-              mainAxisAlignment: .end,
+              const SizedBox(width: 12),
+            ],
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-
-                  crossAxisAlignment: CrossAxisAlignment.end,
-
-                  children: [
-                    Text(
-                      'Pontos Enviados',
-
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                    ),
-
-                    Text(
-                      controller.counter.toString(),
-
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                Text(
+                  'Último envio',
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 11,
+                  ),
                 ),
-                SizedBox(width: 10),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-
-                  crossAxisAlignment: CrossAxisAlignment.end,
-
-                  children: [
-                    Text(
-                      'Último envio',
-
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                    ),
-
-                    Text(
-                      controller.lastTimestamp,
-
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                Text(
+                  controller.lastTimestamp,
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  ElevatedButton loadConfigButton(BuildContext context) {
-    return ElevatedButton(
-      style: ButtonStyle(
-        padding: WidgetStatePropertyAll(EdgeInsets.zero),
-        fixedSize: WidgetStatePropertyAll(const Size(56, 56)),
-        shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+          ],
         ),
       ),
+    );
+  }
 
-      onPressed: () {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(builder: (context) => ConfigView()),
-        // );
-        showDialog(
-          context: context,
+  Widget _buildSessionFAB() {
+    final isBlocked = controller.sessionBlocked;
 
-          builder: (_) {
-            return Dialog(
-              backgroundColor: Colors.white,
-
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-
-                child: SizedBox(
-                  width: 400,
-                  height: 343,
-
-                  child: ConfigView(),
-                ),
-              ),
-            );
-          },
-        );
-      },
-      child: Icon(Icons.settings_rounded, size: 30),
+    return FloatingActionButton(
+      onPressed: isBlocked
+          ? null
+          : (controller.sessionActive
+                ? () => controller.stopSession()
+                : () => controller.startSession()),
+      backgroundColor: isBlocked
+          ? Colors.grey
+          : (controller.sessionActive ? Colors.red : Colors.green),
+      disabledElevation: 0,
+      elevation: isBlocked ? 0 : 6,
+      child: Icon(
+        isBlocked
+            ? Icons.lock_clock
+            : (controller.sessionActive
+                  ? Icons.stop
+                  : Icons.play_arrow),
+        size: 28,
+        color: Colors.white,
+      ),
     );
   }
 }

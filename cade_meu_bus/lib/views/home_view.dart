@@ -75,7 +75,10 @@ class _HomeViewState extends State<HomeView> {
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
             color: controller.connected ? Colors.green : Colors.red,
             child: Center(
               child: Text(
@@ -83,6 +86,7 @@ class _HomeViewState extends State<HomeView> {
                     ? 'SERVIDOR CONECTADO'
                     : 'SERVIDOR DESCONECTADO',
                 style: const TextStyle(
+                  fontSize: 16,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
@@ -107,6 +111,9 @@ class _HomeViewState extends State<HomeView> {
                 /// ÔNIBUS
                 MarkerLayer(
                   markers: controller.allBuses.map((bus) {
+                    String vel =
+                        "${bus.position.speed.toStringAsFixed(1)} km/h";
+
                     return Marker(
                       point: LatLng(
                         bus.position.latitude,
@@ -128,10 +135,10 @@ class _HomeViewState extends State<HomeView> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              "${bus.nome} - ${bus.position.speed} km/h",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                              " ${bus.nome.toUpperCase()} - $vel",
+                              style: TextStyle(
                                 color: Colors.black,
+                                fontWeight: .w600,
                               ),
                             ),
                           ),

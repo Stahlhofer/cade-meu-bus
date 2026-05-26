@@ -95,7 +95,7 @@ class MqttService {
 
     client.keepAlivePeriod = 20;
 
-    // client.autoReconnect = true;
+    client.autoReconnect = true;
 
     client.logging(on: false);
 

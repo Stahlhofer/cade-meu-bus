@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:gps_logger/controllers/tracker_controller.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../controllers/config_controller.dart';
 
 class ConfigView extends StatefulWidget {
-  const ConfigView({super.key});
+  const ConfigView({super.key, required this.trackerController});
+
+  final TrackerController trackerController;
 
   @override
   State<ConfigView> createState() => _ConfigViewState();
@@ -39,6 +42,10 @@ class _ConfigViewState extends State<ConfigView> {
 
     setState(() {});
   }
+
+  bool get simulation => widget.trackerController.simulation;
+  set simulation(bool value) =>
+      widget.trackerController.simulation = value;
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +122,30 @@ class _ConfigViewState extends State<ConfigView> {
               ),
             ),
 
-            /// EMPURRA INFO PARA BAIXO
+            const SizedBox(height: 15),
+
+            Row(
+              mainAxisAlignment: .spaceBetween,
+              children: [
+                Text(
+                  'Simulação de posições',
+
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+
+                Switch(
+                  value: simulation,
+                  onChanged: (value) =>
+                      setState(() => simulation = value),
+                ),
+              ],
+            ),
+
+            /// LOCAL DE ARMAZENAMENTO
             const Spacer(),
 
             const Divider(),
