@@ -44,10 +44,9 @@ class MqttService {
   Stream<BusData> get busStream => _busStreamController.stream;
 
   Future<void> connect() async {
-    if (_initialized) return;
+    if (!_initialized) _setupClient();
 
     _initialized = true;
-    _setupClient();
 
     try {
       print('MQTT connecting...');
@@ -78,11 +77,11 @@ class MqttService {
       client.disconnect();
       throw Exception('Failed to connect to MQTT broker');
     }
+
+    return;
   }
 
   void _setupClient() {
-    print(broker);
-
     client = MqttServerClient.withPort(
       broker,
       'gps_logger_${DateTime.now().millisecondsSinceEpoch}',
