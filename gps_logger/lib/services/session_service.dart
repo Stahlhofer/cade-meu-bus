@@ -146,6 +146,36 @@ class SessionService {
     _positionController.close();
   }
 
+  /// Cleanup ordenado do SessionService
+  /// Chamado quando o app é destruído ou o serviço é parado
+  Future<void> dispose() async {
+    try {
+      // Cancela o timer se estiver rodando
+      timer?.cancel();
+      timer = null;
+
+      // Desconecta MQTT
+      try {
+        mqttService.disconnect();
+      } catch (e) {
+        print('SESSION DISPOSE: Erro ao desconectar MQTT: $e');
+      }
+
+      // Fecha o stream controller se ainda estiver aberto
+      if (!_positionController.isClosed) {
+        try {
+          _positionController.close();
+        } catch (e) {
+          print('SESSION DISPOSE: Erro ao fechar stream: $e');
+        }
+      }
+
+      print('SESSION DISPOSE: SessionService finalizado com sucesso');
+    } catch (e) {
+      print('SESSION DISPOSE: Erro geral: $e');
+    }
+  }
+
   Future<void> loadMockData() async {
     print('LOADING MOCK DATA ');
     final jsonString = await rootBundle.loadString(

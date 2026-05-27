@@ -16,6 +16,10 @@
     <!-- Permissão para post notifications (Android 13+)  -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     
+    <!-- Permissões para Foreground Service  -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    
     <!-- 
         <uses-permission android:name="android.permission.INTERNET" />
         
