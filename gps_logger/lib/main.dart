@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gps_logger/services/notification_service.dart';
 import 'controllers/config_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -14,6 +15,8 @@ void main() async {
   final configController = ConfigController();
 
   await configController.initialize();
+  await NotificationService().initialize();
+
   runApp(MyApp(storage: storage));
 }
 

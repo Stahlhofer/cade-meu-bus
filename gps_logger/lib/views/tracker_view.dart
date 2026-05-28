@@ -19,13 +19,12 @@ class _TrackerViewState extends State<TrackerView> {
 
   @override
   void initState() {
-    super.initState();
-
     controller.initialize();
 
     controller.addListener(() {
       setState(() {});
     });
+    super.initState();
   }
 
   @override

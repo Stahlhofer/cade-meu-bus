@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:gps_logger/services/notification_service.dart';
 import 'dart:async';
 
 import '../models/bus_data.dart';
 import '../services/mqtt_service.dart';
 import '../services/session_service.dart';
-import '../services/background_service.dart';
-import 'dart:convert';
 
 class TrackerController extends ChangeNotifier {
   MqttService mqttService = MqttService();
+
+  late NotificationService notification;
 
   late SessionService sessionService;
 
@@ -31,6 +32,9 @@ class TrackerController extends ChangeNotifier {
   Future<void> initialize() async {
     counter = 0;
     sessionService = SessionService();
+    notification = NotificationService();
+
+    await notification.initialize();
   }
 
   Future<void> startSession() async {
@@ -43,10 +47,7 @@ class TrackerController extends ChangeNotifier {
     try {
       print(simulation);
 
-      // start background foreground service which will run SessionService
-      await MyBackgroundServiceManager().startService(
-        mock: simulation,
-      );
+      await sessionService.start(mock: simulation);
 
       connected = true;
       sessionActive = true;
@@ -59,14 +60,14 @@ class TrackerController extends ChangeNotifier {
       print("FAILED INITIALIZE $e");
     }
 
+    await notification.showNotification(
+      title: 'Hello!',
+      body: 'This is your notification message',
+    );
+
     // listen for position events coming from background service
-    MyBackgroundServiceManager().on('position').listen((event) {
+    sessionService.positions.listen((bus) {
       try {
-        final raw = (event['data'] ?? '').toString();
-        final Map<String, dynamic> json = jsonDecode(raw);
-
-        final bus = BusData.fromJson(json);
-
         counter++;
         buses[bus.busCode] = bus;
 
@@ -81,8 +82,7 @@ class TrackerController extends ChangeNotifier {
 
   Future<void> stopSession() async {
     try {
-      // ask background service to stop and clean resources
-      await MyBackgroundServiceManager().stopService();
+      sessionService.stop();
 
       sessionActive = false;
       connected = false;
