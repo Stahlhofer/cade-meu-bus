@@ -59,7 +59,8 @@ class SessionService {
 
     await mqttService.connect();
 
-    timer = Timer.periodic(const Duration(minutes: 1), (_) async {
+    timer = Timer.periodic(const Duration(seconds: 10), (_) async {
+      print(mqttService.clientStatus);
       if (useMockData) {
         await sendMockPosition();
       } else {

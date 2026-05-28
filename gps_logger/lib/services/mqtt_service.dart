@@ -44,6 +44,9 @@ class MqttService {
 
   Stream<BusData> get busStream => _busStreamController.stream;
 
+  MqttConnectionState get clientStatus =>
+      client.connectionStatus?.state ?? MqttConnectionState.faulted;
+
   Future<void> connect() async {
     if (!_initialized) _setupClient();
 

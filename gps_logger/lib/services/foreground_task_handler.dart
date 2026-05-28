@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 @pragma('vm:entry-point')
 void startCallback() {
   FlutterForegroundTask.setTaskHandler(ForegroundTaskHandler());
-  print('called?');
 }
 
 class ForegroundTaskHandler extends TaskHandler {
