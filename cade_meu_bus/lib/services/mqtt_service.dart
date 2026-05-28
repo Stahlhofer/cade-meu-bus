@@ -99,7 +99,7 @@ class MqttService {
     final connMessage = MqttConnectMessage()
         .authenticateAs(username, password)
         .withClientIdentifier(
-          'flutter_bus_tracker_${DateTime.now().millisecondsSinceEpoch}',
+          'flutter_cade_meu_bus_${DateTime.now().millisecondsSinceEpoch}',
         )
         .startClean();
 

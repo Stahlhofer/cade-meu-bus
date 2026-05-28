@@ -36,8 +36,8 @@ class _TrackerViewState extends State<TrackerView> {
 
   @override
   Widget build(BuildContext context) {
-    print("simulando? ${controller.simulation}");
-    print("pontos enviados ${controller.counter}");
+    debugPrint("simulando? ${controller.simulation}");
+    debugPrint("pontos enviados ${controller.counter}");
 
     return Scaffold(
       appBar: AppBar(
@@ -53,26 +53,6 @@ class _TrackerViewState extends State<TrackerView> {
                       ConfigView(trackerController: controller),
                 ),
               );
-
-              // showDialog(
-              //   context: context,
-              //   builder: (_) {
-              //     return Dialog(
-              //       backgroundColor: Colors.white,
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(24),
-              //       ),
-              //       child: ClipRRect(
-              //         borderRadius: BorderRadius.circular(24),
-              //         child: SizedBox(
-              //           width: 400,
-              //           height: 343,
-              //           child: ConfigView(),
-              //         ),
-              //       ),
-              //     );
-              //   },
-              // );
             },
           ),
         ],
@@ -272,7 +252,14 @@ class _TrackerViewState extends State<TrackerView> {
           ? null
           : (controller.sessionActive
                 ? () => controller.stopSession()
-                : () => controller.startSession()),
+                : () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Iniciando sessão'),
+                      ),
+                    );
+                    controller.startSession();
+                  }),
       backgroundColor: isBlocked
           ? Colors.grey
           : (controller.sessionActive ? Colors.red : Colors.green),

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'controllers/config_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'views/tracker_view.dart';
 import 'services/gps_storage.dart';
-import 'services/foreground_task_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +17,7 @@ void main() async {
 
   // Inicializa o Foreground Task Handler
   // Necessário para o flutter_foreground_task funcionar
-  FlutterForegroundTask.setTaskHandler(ForegroundTaskHandler());
+  // FlutterForegroundTask.setTaskHandler(ForegroundTaskHandler());
 
   runApp(MyApp(storage: storage));
 }

@@ -19,7 +19,7 @@ class ConfigStorageService {
     final json = prefs.getString(key);
 
     if (json == null) {
-      return BusConfig.empty();
+      return BusConfig(nome: 'Onibus 1', topic: 'panambi/bus01');
     }
 
     return BusConfig.fromJson(jsonDecode(json));

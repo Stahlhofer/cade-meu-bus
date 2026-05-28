@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-
-import '../models/gps_data.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/material.dart';
+import '../models/gps_data.dart';
 
 class GPSJsonStorage {
   // static const String logsDirectoryPath = './assets/logs';
@@ -26,7 +26,7 @@ class GPSJsonStorage {
     if (!await _logsDirectory.exists()) {
       await _logsDirectory.create(recursive: true);
     }
-    print(_logsDirectory);
+    debugPrint(_logsDirectory.toString());
     return _logsDirectory;
   }
 

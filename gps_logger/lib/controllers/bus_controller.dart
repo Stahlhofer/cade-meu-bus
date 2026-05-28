@@ -26,7 +26,7 @@ class BusController extends ChangeNotifier {
         notifyListeners();
       });
     } catch (e) {
-      print('Exception occurred: $e');
+      debugPrint('Exception occurred: $e');
       connected = false;
 
       notifyListeners();

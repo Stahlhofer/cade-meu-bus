@@ -4,22 +4,22 @@
     <!--    Permissões de GPS  -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    
+
     <!-- Permissões para background  -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    
+
     <!-- Permissões para escrita de arquivos  -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    
+
     <!-- Permissão para post notifications (Android 13+)  -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    
+
     <!-- Permissões para Foreground Service  -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
-    
+
     <!-- 
         <uses-permission android:name="android.permission.INTERNET" />
         
@@ -60,6 +60,10 @@
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme"
+            />
+            <service
+                android:name="id.flutter.flutter_background_service.BackgroundService"
+                android:foregroundServiceType="WhatForegroundServiceTypeDoYouWant"
             />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -67,7 +67,7 @@ class GPSSession {
   }
 
   factory GPSSession.fromJson(Map<String, dynamic> json) {
-    // print(['START ${json['start_time']}', 'END ${json['end_time']}']);
+    // debugPrint(['START ${json['start_time']}', 'END ${json['end_time']}']);
 
     String? unix = json.containsKey('end_unix')
         ? json['end_unix'].toString()
@@ -77,7 +77,7 @@ class GPSSession {
         ? json['end_time'].toString()
         : null;
 
-    // print("ENDTIME ${unix ?? normal ?? 00000}");
+    // debugPrint("ENDTIME ${unix ?? normal ?? 00000}");
 
     DateTime? endTime;
 

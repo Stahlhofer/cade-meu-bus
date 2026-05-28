@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "bus_tracker" "\0"
+            VALUE "FileDescription", "cade_meu_bus" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "bus_tracker" "\0"
+            VALUE "InternalName", "cade_meu_bus" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "bus_tracker.exe" "\0"
-            VALUE "ProductName", "bus_tracker" "\0"
+            VALUE "OriginalFilename", "cade_meu_bus.exe" "\0"
+            VALUE "ProductName", "cade_meu_bus" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

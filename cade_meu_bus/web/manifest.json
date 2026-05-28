@@ -1,6 +1,6 @@
 {
-    "name": "bus_tracker",
-    "short_name": "bus_tracker",
+    "name": "cade_meu_bus",
+    "short_name": "cade_meu_bus",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#FFFFFF",

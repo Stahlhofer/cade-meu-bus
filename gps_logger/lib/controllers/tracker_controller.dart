@@ -35,18 +35,19 @@ class TrackerController extends ChangeNotifier {
 
   Future<void> initialize() async {
     counter = 0;
+    // startCallback();
     sessionService = SessionService();
 
     // Escuta eventos do foreground task handler
     _foregroundTaskSubscription = ForegroundTaskHandler.eventStream
         .listen((event) {
           if (event == 'stop_requested') {
-            print(
+            debugPrint(
               '[TrackerController] Stop solicitado pela notificação',
             );
             stopSession();
           } else if (event == 'service_destroyed') {
-            print('[TrackerController] Serviço destruído');
+            debugPrint('[TrackerController] Serviço destruído');
             sessionActive = false;
             notifyListeners();
           }
@@ -55,20 +56,22 @@ class TrackerController extends ChangeNotifier {
 
   Future<void> startSession() async {
     if (sessionBlocked) {
-      print('SESSÃO BLOQUEADA - AGUARDE ANTES DE INICIAR NOVAMENTE');
+      debugPrint(
+        'SESSÃO BLOQUEADA - AGUARDE ANTES DE INICIAR NOVAMENTE',
+      );
       return;
     }
 
     counter = 0;
     try {
-      print(simulation);
+      debugPrint(simulation.toString());
 
       // Solicita permissões necessárias
       final permissionsGranted = await _foregroundServiceManager
           .requestPermissions();
 
       if (!permissionsGranted) {
-        print('PERMISSÕES NEGADAS PARA FOREGROUND SERVICE');
+        debugPrint('PERMISSÕES NEGADAS PARA FOREGROUND SERVICE');
         connected = false;
         sessionActive = false;
         notifyListeners();
@@ -85,17 +88,17 @@ class TrackerController extends ChangeNotifier {
       sessionActive = true;
       notifyListeners();
 
-      print("SUCCEEDED INITIALIZE");
+      debugPrint("SUCCEEDED INITIALIZE");
     } catch (e) {
       connected = false;
       sessionActive = false;
-      print("FAILED INITIALIZE $e");
+      debugPrint("FAILED INITIALIZE $e");
       notifyListeners();
     }
 
     sessionService.positions.listen((bus) {
       counter++;
-      print("NEW DATA  ${bus.toJson()} ");
+      debugPrint("NEW DATA  ${bus.toJson()} ");
       buses[bus.busCode] = bus;
 
       lastTimestamp = bus.position.timestamp.replaceAll('-', '/');
@@ -126,9 +129,11 @@ class TrackerController extends ChangeNotifier {
         notifyListeners();
       });
 
-      print('SESSÃO TERMINADA - BLOQUEIO DE 2 SEGUNDOS INICIADO');
+      debugPrint(
+        'SESSÃO TERMINADA - BLOQUEIO DE 2 SEGUNDOS INICIADO',
+      );
     } catch (e) {
-      print('ERRO AO PARAR SESSÃO: $e');
+      debugPrint('ERRO AO PARAR SESSÃO: $e');
     }
   }
 
@@ -139,7 +144,7 @@ class TrackerController extends ChangeNotifier {
     try {
       sessionService.dispose();
     } catch (e) {
-      print('ERRO AO FINALIZAR SESSION SERVICE: $e');
+      debugPrint('ERRO AO FINALIZAR SESSION SERVICE: $e');
     }
     super.dispose();
   }

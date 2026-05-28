@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:flutter/material.dart';
 
 import '../models/bus_data.dart';
 
@@ -49,7 +50,7 @@ class MqttService {
     _initialized = true;
 
     try {
-      print('MQTT connecting...');
+      debugPrint('MQTT connecting...');
 
       connectionState = MqttConnectionStateCustom.connecting;
 
@@ -57,20 +58,20 @@ class MqttService {
 
       if (client.connectionStatus?.state ==
           MqttConnectionState.connected) {
-        print('MQTT connected');
+        debugPrint('MQTT connected');
 
         connectionState = MqttConnectionStateCustom.connected;
 
         // _subscribeToTopic();
       } else {
-        print('MQTT failed: ${client.connectionStatus}');
+        debugPrint('MQTT failed: ${client.connectionStatus}');
 
         connectionState = MqttConnectionStateCustom.error;
 
         client.disconnect();
       }
     } catch (e) {
-      print('MQTT exception: $e');
+      debugPrint('MQTT exception: $e');
 
       connectionState = MqttConnectionStateCustom.error;
 
@@ -115,7 +116,7 @@ class MqttService {
   }
 
   void publishJson({required String topic, required String json}) {
-    print("PUBLISHING: $topic, $json");
+    debugPrint("PUBLISHING: $topic, $json");
     final builder = MqttClientPayloadBuilder();
 
     builder.addString(json);
@@ -124,6 +125,7 @@ class MqttService {
       topic,
       MqttQos.atLeastOnce,
       builder.payload!,
+      retain: true,
     );
   }
 
@@ -132,18 +134,18 @@ class MqttService {
   }
 
   void _onConnected() {
-    print('MQTT connected callback');
+    debugPrint('MQTT connected callback');
 
     connectionState = MqttConnectionStateCustom.connected;
   }
 
   void _onDisconnected() {
-    print('MQTT disconnected callback');
+    debugPrint('MQTT disconnected callback');
 
     connectionState = MqttConnectionStateCustom.disconnected;
   }
 
   void _onSubscribed(String topic) {
-    print('Subscribed to $topic');
+    debugPrint('Subscribed to $topic');
   }
 }

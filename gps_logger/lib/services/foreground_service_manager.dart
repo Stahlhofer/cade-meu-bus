@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:gps_logger/services/foreground_task_handler.dart';
 
 /// Gerenciador do Foreground Service
 /// Responsável por inicializar, configurar e parar o serviço
@@ -19,7 +21,9 @@ class ForegroundServiceManager {
   /// Inicializa e inicia o Foreground Service
   Future<void> startService() async {
     if (_isServiceRunning) {
-      print('[ForegroundServiceManager] Serviço já está em execução');
+      debugPrint(
+        '[ForegroundServiceManager] Serviço já está em execução',
+      );
       return;
     }
 
@@ -27,7 +31,7 @@ class ForegroundServiceManager {
       // Configura a notificação do foreground service
       FlutterForegroundTask.init(
         androidNotificationOptions: AndroidNotificationOptions(
-          id: 888,
+          // id: 888,
           channelId: 'gps_tracking_channel',
           channelName: 'Rastreamento GPS',
           channelDescription:
@@ -52,14 +56,17 @@ class ForegroundServiceManager {
         notificationButtons: [
           const NotificationButton(id: 'stop', text: 'PARAR'),
         ],
+        callback: startCallback,
       );
 
       _isServiceRunning = true;
-      print(
+      debugPrint(
         '[ForegroundServiceManager] Foreground Service iniciado com sucesso',
       );
     } catch (e) {
-      print('[ForegroundServiceManager] Erro ao iniciar serviço: $e');
+      debugPrint(
+        '[ForegroundServiceManager] Erro ao iniciar serviço: $e',
+      );
       rethrow;
     }
   }
@@ -67,7 +74,7 @@ class ForegroundServiceManager {
   /// Para o Foreground Service
   Future<void> stopService() async {
     if (!_isServiceRunning) {
-      print(
+      debugPrint(
         '[ForegroundServiceManager] Serviço já não está em execução',
       );
       return;
@@ -76,11 +83,13 @@ class ForegroundServiceManager {
     try {
       await FlutterForegroundTask.stopService();
       _isServiceRunning = false;
-      print(
+      debugPrint(
         '[ForegroundServiceManager] Foreground Service parado com sucesso',
       );
     } catch (e) {
-      print('[ForegroundServiceManager] Erro ao parar serviço: $e');
+      debugPrint(
+        '[ForegroundServiceManager] Erro ao parar serviço: $e',
+      );
       rethrow;
     }
   }
@@ -96,7 +105,7 @@ class ForegroundServiceManager {
         notificationText: text,
       );
     } catch (e) {
-      print(
+      debugPrint(
         '[ForegroundServiceManager] Erro ao atualizar notificação: $e',
       );
     }
@@ -107,7 +116,7 @@ class ForegroundServiceManager {
     final isNotificationPermissionGranted =
         await FlutterForegroundTask.checkNotificationPermission();
 
-    print(
+    debugPrint(
       '[ForegroundServiceManager] Notificação: $isNotificationPermissionGranted',
     );
 
@@ -117,12 +126,14 @@ class ForegroundServiceManager {
 
   /// Solicita permissões necessárias
   Future<bool> requestPermissions() async {
-    print('[ForegroundServiceManager] Solicitando permissões...');
+    debugPrint(
+      '[ForegroundServiceManager] Solicitando permissões...',
+    );
 
     final notificationPermission =
         await FlutterForegroundTask.requestNotificationPermission();
 
-    print(
+    debugPrint(
       '[ForegroundServiceManager] Permissão notificação: $notificationPermission',
     );
 

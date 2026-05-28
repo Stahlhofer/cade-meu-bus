@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
-
+import 'package:flutter/material.dart';
 import '../models/bus_config.dart';
 import '../models/bus_data.dart';
 import '../models/bus_position.dart';
@@ -130,7 +130,7 @@ class SessionService {
         json: jsonEncode(busData.toJson()),
       );
 
-      print('PUBLISHED TO: $fullTopic');
+      debugPrint('PUBLISHED TO: $fullTopic');
     } catch (e) {
       print('SESSION ERROR: $e');
     }
@@ -158,7 +158,7 @@ class SessionService {
       try {
         mqttService.disconnect();
       } catch (e) {
-        print('SESSION DISPOSE: Erro ao desconectar MQTT: $e');
+        debugPrint('SESSION DISPOSE: Erro ao desconectar MQTT: $e');
       }
 
       // Fecha o stream controller se ainda estiver aberto
@@ -166,18 +166,20 @@ class SessionService {
         try {
           _positionController.close();
         } catch (e) {
-          print('SESSION DISPOSE: Erro ao fechar stream: $e');
+          debugPrint('SESSION DISPOSE: Erro ao fechar stream: $e');
         }
       }
 
-      print('SESSION DISPOSE: SessionService finalizado com sucesso');
+      debugPrint(
+        'SESSION DISPOSE: SessionService finalizado com sucesso',
+      );
     } catch (e) {
-      print('SESSION DISPOSE: Erro geral: $e');
+      debugPrint('SESSION DISPOSE: Erro geral: $e');
     }
   }
 
   Future<void> loadMockData() async {
-    print('LOADING MOCK DATA ');
+    debugPrint('LOADING MOCK DATA ');
     final jsonString = await rootBundle.loadString(
       'assets/mock_data.json',
     );
@@ -190,7 +192,7 @@ class SessionService {
   Future<void> sendMockPosition() async {
     try {
       if (mockPositions.isEmpty) {
-        print('MOCK DATA EMPTY');
+        debugPrint('MOCK DATA EMPTY');
         return;
       }
 
@@ -215,12 +217,12 @@ class SessionService {
         json: jsonEncode(busData.toJson()),
       );
 
-      print(
+      debugPrint(
         'MOCK PUBLISHED: ${busData.position.latitude}, '
         '${busData.position.longitude}',
       );
     } catch (e) {
-      print('MOCK ERROR: $e');
+      debugPrint('MOCK ERROR: $e');
     }
   }
 }
