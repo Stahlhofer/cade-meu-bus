@@ -33,7 +33,8 @@
             "request": "launch",
             "type": "dart",
             "args": [
-                "--dart-define-from-file=.env"
+                "--dart-define-from-file=.env",
+
             ]
         },
         {

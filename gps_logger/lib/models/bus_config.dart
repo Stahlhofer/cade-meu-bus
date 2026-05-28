@@ -8,7 +8,9 @@ class BusConfig {
   factory BusConfig.empty() {
     return BusConfig(nome: '', topic: '');
   }
-
+  factory BusConfig.basic() {
+    return BusConfig(nome: 'ONIBUS 1', topic: 'panambi/bus01');
+  }
   Map<String, dynamic> toJson() {
     return {'nome': nome, 'topic': topic};
   }

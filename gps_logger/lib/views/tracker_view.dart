@@ -53,26 +53,6 @@ class _TrackerViewState extends State<TrackerView> {
                       ConfigView(trackerController: controller),
                 ),
               );
-
-              // showDialog(
-              //   context: context,
-              //   builder: (_) {
-              //     return Dialog(
-              //       backgroundColor: Colors.white,
-              //       shape: RoundedRectangleBorder(
-              //         borderRadius: BorderRadius.circular(24),
-              //       ),
-              //       child: ClipRRect(
-              //         borderRadius: BorderRadius.circular(24),
-              //         child: SizedBox(
-              //           width: 400,
-              //           height: 343,
-              //           child: ConfigView(),
-              //         ),
-              //       ),
-              //     );
-              //   },
-              // );
             },
           ),
         ],

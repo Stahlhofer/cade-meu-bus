@@ -4,6 +4,8 @@ import 'dart:async';
 import '../models/bus_data.dart';
 import '../services/mqtt_service.dart';
 import '../services/session_service.dart';
+import '../services/background_service.dart';
+import 'dart:convert';
 
 class TrackerController extends ChangeNotifier {
   MqttService mqttService = MqttService();
@@ -40,33 +42,48 @@ class TrackerController extends ChangeNotifier {
     counter = 0;
     try {
       print(simulation);
-      await sessionService.start(mock: simulation);
+
+      // start background foreground service which will run SessionService
+      await MyBackgroundServiceManager().startService(
+        mock: simulation,
+      );
 
       connected = true;
       sessionActive = true;
       notifyListeners();
 
-      print("SUCCEEDED INITIALIZE");
+      print("SUCCEEDED START BACKGROUND SERVICE");
     } catch (e) {
       connected = false;
       sessionActive = false;
       print("FAILED INITIALIZE $e");
     }
 
-    sessionService.positions.listen((bus) {
-      counter++;
-      print("NEW DATA  ${bus.toJson()} ");
-      buses[bus.busCode] = bus;
+    // listen for position events coming from background service
+    MyBackgroundServiceManager().on('position').listen((event) {
+      try {
+        final raw = (event['data'] ?? '').toString();
+        final Map<String, dynamic> json = jsonDecode(raw);
 
-      lastTimestamp = bus.position.timestamp.replaceAll('-', '/');
+        final bus = BusData.fromJson(json);
 
-      notifyListeners();
+        counter++;
+        buses[bus.busCode] = bus;
+
+        lastTimestamp = bus.position.timestamp.replaceAll('-', '/');
+
+        notifyListeners();
+      } catch (e) {
+        print('ERROR PROCESSING BG EVENT: $e');
+      }
     });
   }
 
   Future<void> stopSession() async {
     try {
-      sessionService.stop();
+      // ask background service to stop and clean resources
+      await MyBackgroundServiceManager().stopService();
+
       sessionActive = false;
       connected = false;
       sessionBlocked = true;
