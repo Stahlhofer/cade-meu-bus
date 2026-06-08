@@ -25,7 +25,10 @@ void main() {
         ),
       );
 
-      mqtt.publish(jsonEncode(bus.toJson()));
+      mqtt.publishJson(
+        topic: bus.mqttTopic,
+        json: jsonEncode(bus.toJson()),
+      );
     } catch (e) {
       print(e);
     }

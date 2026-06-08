@@ -15,6 +15,16 @@ enum MqttConnectionStateCustom {
 }
 
 class MqttService {
+  static final MqttService _instance = MqttService._internal();
+
+  factory MqttService() {
+    return _instance;
+  }
+
+  MqttService._internal();
+
+  bool _initialized = false;
+
   late MqttServerClient client;
 
   final String broker = const String.fromEnvironment('MQTT_URL');
@@ -28,14 +38,15 @@ class MqttService {
 
   MqttConnectionStateCustom connectionState =
       MqttConnectionStateCustom.idle;
-
   final StreamController<BusData> _busStreamController =
       StreamController<BusData>.broadcast();
 
   Stream<BusData> get busStream => _busStreamController.stream;
 
   Future<void> connect() async {
-    _setupClient();
+    if (!_initialized) _setupClient();
+
+    _initialized = true;
 
     try {
       print('MQTT connecting...');
@@ -66,11 +77,11 @@ class MqttService {
       client.disconnect();
       throw Exception('Failed to connect to MQTT broker');
     }
+
+    return;
   }
 
   void _setupClient() {
-    print(broker);
-
     client = MqttServerClient.withPort(
       broker,
       'gps_logger_${DateTime.now().millisecondsSinceEpoch}',
@@ -103,16 +114,16 @@ class MqttService {
     client.connectionMessage = connMessage;
   }
 
-  void publish(String message) {
+  void publishJson({required String topic, required String json}) {
+    print("PUBLISHING: $topic, $json");
     final builder = MqttClientPayloadBuilder();
 
-    builder.addString(message);
+    builder.addString(json);
 
     client.publishMessage(
-      'cade-meu-bus/panambi/bus01',
+      topic,
       MqttQos.atLeastOnce,
       builder.payload!,
-      retain: true,
     );
   }
 

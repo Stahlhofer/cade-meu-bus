@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:gps_logger/services/notification_service.dart';
+import 'controllers/config_controller.dart';
 
-import 'views/home_view.dart';
+import 'views/tracker_view.dart';
 import 'services/gps_storage.dart';
-
-import 'package:permission_handler/permission_handler.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +11,10 @@ void main() async {
   // Inicializa o armazenamento
   final storage = GPSJsonStorage();
   await storage.initialize();
+  final configController = ConfigController();
+
+  await configController.initialize();
+  await NotificationService().initialize();
 
   runApp(MyApp(storage: storage));
 }
@@ -23,6 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: true,
       title: 'GPS Logger',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -31,11 +36,8 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: HomeView(storage: storage),
+      // home: HomeView(storage: storage),
+      home: TrackerView(),
     );
   }
-}
-
-Future<void> pedirPermissao() async {
-  await Permission.storage.request();
 }
