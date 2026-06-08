@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gps_logger/services/notification_service.dart';
+import 'package:latlong2/latlong.dart';
 import 'dart:async';
 
 import '../models/bus_data.dart';
@@ -14,6 +15,8 @@ class TrackerController extends ChangeNotifier {
   late SessionService sessionService;
 
   final Map<String, BusData> buses = {};
+
+  List<BusData> get allBuses => buses.values.toList();
 
   int counter = 0;
 
@@ -45,15 +48,11 @@ class TrackerController extends ChangeNotifier {
 
     counter = 0;
     try {
-      print(simulation);
-
       await sessionService.start(mock: simulation);
 
       connected = true;
       sessionActive = true;
       notifyListeners();
-
-      print("SUCCEEDED START BACKGROUND SERVICE");
     } catch (e) {
       connected = false;
       sessionActive = false;
@@ -61,8 +60,9 @@ class TrackerController extends ChangeNotifier {
     }
 
     await notification.showNotification(
-      title: 'Hello!',
-      body: 'This is your notification message',
+      id: 0,
+      title: 'Conexão ATIVA',
+      body: 'Envio de dados da posição atual em andamento',
     );
 
     // listen for position events coming from background service
@@ -99,6 +99,17 @@ class TrackerController extends ChangeNotifier {
     } catch (e) {
       print('ERRO AO PARAR SESSÃO: $e');
     }
+  }
+
+  LatLng getCenter() {
+    if (buses.isEmpty) {
+      return LatLng(-28.30547397556633, -53.50550691397332);
+    }
+
+    return LatLng(
+      buses.values.first.position.latitude,
+      buses.values.first.position.longitude,
+    );
   }
 
   @override

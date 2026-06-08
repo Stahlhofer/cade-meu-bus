@@ -17,19 +17,45 @@ class TrackerView extends StatefulWidget {
 class _TrackerViewState extends State<TrackerView> {
   TrackerController controller = TrackerController();
 
+  final MapController mapController = MapController();
+
+  double _currentZoom = 13.0;
+
+  void _onControllerChanged() {
+    print("CALLER CONTROLLER CHANGE");
+    // Se estivermos com um ônibus em foco, atualiza a posição da câmera para seguir
+    final bus = controller.allBuses.firstOrNull;
+
+    if (bus != null) {
+      final point = LatLng(
+        bus.position.latitude,
+        bus.position.longitude,
+      );
+
+      try {
+        mapController.move(point, _currentZoom);
+      } catch (e) {
+        // ônibus não encontrado mais -> desativa tracking
+        print(e);
+      }
+    }
+
+    setState(() {});
+  }
+
   @override
   void initState() {
     controller.initialize();
 
-    controller.addListener(() {
-      setState(() {});
-    });
+    controller.addListener(_onControllerChanged);
+
     super.initState();
   }
 
   @override
   void dispose() {
-    controller.removeListener(() {});
+    controller.removeListener(_onControllerChanged);
+
     super.dispose();
   }
 
@@ -86,12 +112,18 @@ class _TrackerViewState extends State<TrackerView> {
             child: Stack(
               children: [
                 FlutterMap(
+                  mapController: mapController,
                   options: MapOptions(
-                    initialCenter: const LatLng(
-                      -28.290912713706224,
-                      -53.499054137856284,
-                    ),
-                    initialZoom: 15,
+                    initialCenter: controller.getCenter(),
+                    initialZoom: _currentZoom,
+                    onPositionChanged: (mapPosition, hasGesture) {
+                      // // Se o usuário interagir manualmente com o mapa, desfoca o ônibus
+                      // if (hasGesture && _trackedBusCode != null) {
+                      //   setState(() {
+                      //     _trackedBusCode = null;
+                      //   });
+                      // }
+                    },
                     interactionOptions: const InteractionOptions(
                       // conjunto de bits
                       // .all obtém o codigo de todos (todos os bits em 1)
@@ -121,34 +153,52 @@ class _TrackerViewState extends State<TrackerView> {
                           ),
                           width: 200,
                           height: 120,
-                          child: Column(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(
-                                    8,
+                          child: GestureDetector(
+                            onTap: () {
+                              // Alterna o tracking: se já está rastreando este ônibus, desfoca; senão, foca nele
+
+                              final point = LatLng(
+                                bus.position.latitude,
+                                bus.position.longitude,
+                              );
+
+                              final targetZoom = _currentZoom < 13.0
+                                  ? 13.0
+                                  : _currentZoom;
+                              _currentZoom = targetZoom;
+
+                              mapController.move(point, targetZoom);
+
+                              setState(() {});
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius:
+                                        BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    " ${bus.nome.toUpperCase()} - $vel",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: .w600,
+                                    ),
                                   ),
                                 ),
-                                child: Text(
-                                  " ${bus.nome.toUpperCase()} - $vel",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: .w600,
-                                  ),
+                                const SizedBox(height: 6),
+                                const Icon(
+                                  Icons.directions_bus,
+                                  size: 48,
+                                  color: Colors.blue,
                                 ),
-                              ),
-                              const SizedBox(height: 6),
-                              const Icon(
-                                Icons.directions_bus,
-                                size: 48,
-                                color: Colors.blue,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       }).toList(),
@@ -246,26 +296,60 @@ class _TrackerViewState extends State<TrackerView> {
   Widget _buildSessionFAB() {
     final isBlocked = controller.sessionBlocked;
 
-    return FloatingActionButton(
-      onPressed: isBlocked
-          ? null
-          : (controller.sessionActive
-                ? () => controller.stopSession()
-                : () => controller.startSession()),
-      backgroundColor: isBlocked
-          ? Colors.grey
-          : (controller.sessionActive ? Colors.red : Colors.green),
-      disabledElevation: 0,
-      elevation: isBlocked ? 0 : 6,
-      child: Icon(
-        isBlocked
-            ? Icons.lock_clock
-            : (controller.sessionActive
-                  ? Icons.stop
-                  : Icons.play_arrow),
-        size: 28,
-        color: Colors.white,
-      ),
+    return Column(
+      mainAxisSize: .min,
+      children: [
+        FloatingActionButton(
+          heroTag: 'ADD',
+          mini: true,
+          onPressed: () {
+            setState(() {
+              _currentZoom = (_currentZoom + 1).clamp(1.0, 19.0);
+            });
+            final center = controller.getCenter();
+            mapController.move(center, _currentZoom);
+          },
+          child: const Icon(Icons.add),
+        ),
+        const SizedBox(height: 8),
+        FloatingActionButton(
+          heroTag: 'SUB',
+          mini: true,
+
+          onPressed: () {
+            setState(() {
+              _currentZoom = (_currentZoom - 1).clamp(1.0, 19.0);
+            });
+            final center = controller.getCenter();
+            mapController.move(center, _currentZoom);
+          },
+          child: const Icon(Icons.remove),
+        ),
+        const SizedBox(height: 8),
+        FloatingActionButton(
+          onPressed: isBlocked
+              ? null
+              : (controller.sessionActive
+                    ? () => controller.stopSession()
+                    : () => controller.startSession()),
+          backgroundColor: isBlocked
+              ? Colors.grey
+              : (controller.sessionActive
+                    ? Colors.red
+                    : Colors.green),
+          disabledElevation: 0,
+          elevation: isBlocked ? 0 : 6,
+          child: Icon(
+            isBlocked
+                ? Icons.lock_clock
+                : (controller.sessionActive
+                      ? Icons.stop
+                      : Icons.play_arrow),
+            size: 28,
+            color: Colors.white,
+          ),
+        ),
+      ],
     );
   }
 }

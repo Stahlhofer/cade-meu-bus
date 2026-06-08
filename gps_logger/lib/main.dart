@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gps_logger/services/notification_service.dart';
 import 'controllers/config_controller.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import 'views/tracker_view.dart';
 import 'services/gps_storage.dart';
@@ -41,8 +40,4 @@ class MyApp extends StatelessWidget {
       home: TrackerView(),
     );
   }
-}
-
-Future<void> pedirPermissao() async {
-  await Permission.storage.request();
 }
