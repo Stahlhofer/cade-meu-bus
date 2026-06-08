@@ -53,17 +53,20 @@ class TrackerController extends ChangeNotifier {
       connected = true;
       sessionActive = true;
       notifyListeners();
+
+      await notification.showNotification(
+        id: 1,
+        title: 'Conexão ATIVA',
+        body:
+            'Envio de dados da posição atual em andamento. A tela permanecera ativa enquanto a sessão estiver ativa.',
+      );
     } catch (e) {
       connected = false;
       sessionActive = false;
-      print("FAILED INITIALIZE $e");
-    }
 
-    await notification.showNotification(
-      id: 0,
-      title: 'Conexão ATIVA',
-      body: 'Envio de dados da posição atual em andamento',
-    );
+      print("FAILED INITIALIZE $e");
+      throw Exception('Conexão MQTT falhou');
+    }
 
     // listen for position events coming from background service
     sessionService.positions.listen((bus) {

@@ -331,7 +331,26 @@ class _TrackerViewState extends State<TrackerView> {
               ? null
               : (controller.sessionActive
                     ? () => controller.stopSession()
-                    : () => controller.startSession()),
+                    : () async {
+                        try {
+                          await controller.startSession();
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              backgroundColor: Colors.redAccent,
+                              content: Center(
+                                child: Text(
+                                  'Falha de conexão com o servidor.',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                      }),
           backgroundColor: isBlocked
               ? Colors.grey
               : (controller.sessionActive

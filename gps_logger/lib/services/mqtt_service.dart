@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
@@ -70,11 +71,14 @@ class MqttService {
         client.disconnect();
       }
     } catch (e) {
-      print('MQTT exception: $e');
+      debugPrint('MQTT exception: $e');
 
       connectionState = MqttConnectionStateCustom.error;
 
       client.disconnect();
+      if (e is SocketException) {
+        throw Exception('Falha de conexão com o servidor');
+      }
       throw Exception('Failed to connect to MQTT broker');
     }
 
