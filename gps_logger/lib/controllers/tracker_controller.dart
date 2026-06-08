@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import '../models/bus_data.dart';
-import '../services/mqtt_service.dart';
 import '../services/session_service.dart';
 import '../services/foreground_service_manager.dart';
-import '../services/foreground_task_handler.dart';
+import 'foreground_task_handler.dart';
 
 class TrackerController extends ChangeNotifier {
-  MqttService mqttService = MqttService();
-
   late SessionService sessionService;
 
   final ForegroundServiceManager _foregroundServiceManager =
@@ -82,13 +79,13 @@ class TrackerController extends ChangeNotifier {
       await _foregroundServiceManager.startService();
 
       // Inicia a sessão de tracking
-      await sessionService.start(mock: simulation);
+      // await sessionService.start(mock: simulation);
 
       connected = true;
       sessionActive = true;
       notifyListeners();
 
-      debugPrint("SUCCEEDED INITIALIZE");
+      debugPrint("[TrackerController] SUCCEEDED INITIALIZE");
     } catch (e) {
       connected = false;
       sessionActive = false;
@@ -96,15 +93,15 @@ class TrackerController extends ChangeNotifier {
       notifyListeners();
     }
 
-    sessionService.positions.listen((bus) {
-      counter++;
-      debugPrint("NEW DATA  ${bus.toJson()} ");
-      buses[bus.busCode] = bus;
+    // sessionService.positions.listen((bus) {
+    //   counter++;
+    //   debugPrint("NEW DATA  ${bus.toJson()} ");
+    //   buses[bus.busCode] = bus;
 
-      lastTimestamp = bus.position.timestamp.replaceAll('-', '/');
+    //   lastTimestamp = bus.position.timestamp.replaceAll('-', '/');
 
-      notifyListeners();
-    });
+    //   notifyListeners();
+    // });
   }
 
   Future<void> stopSession() async {
@@ -113,7 +110,7 @@ class TrackerController extends ChangeNotifier {
       await _foregroundServiceManager.stopService();
 
       // Para a sessão de tracking
-      sessionService.stop();
+      // sessionService.stop();
 
       // Faz cleanup completo
       await sessionService.dispose();

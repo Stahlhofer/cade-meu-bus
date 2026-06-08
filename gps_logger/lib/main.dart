@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:gps_logger/controllers/foreground_task_handler.dart';
 import 'controllers/config_controller.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'views/tracker_view.dart';
 import 'services/gps_storage.dart';
 
+final handler = ForegroundTaskHandler();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterForegroundTask.initCommunicationPort();
 
   // Inicializa o armazenamento
   final storage = GPSJsonStorage();

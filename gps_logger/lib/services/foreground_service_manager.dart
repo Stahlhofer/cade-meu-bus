@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-import 'package:gps_logger/services/foreground_task_handler.dart';
+import 'package:gps_logger/controllers/foreground_task_handler.dart';
 
 /// Gerenciador do Foreground Service
 /// Responsável por inicializar, configurar e parar o serviço
@@ -56,6 +56,10 @@ class ForegroundServiceManager {
         notificationButtons: [
           const NotificationButton(id: 'stop', text: 'PARAR'),
         ],
+        notificationIcon: NotificationIcon(
+          metaDataName: "@mipmap/launcher_icon",
+        ),
+        serviceTypes: [.location, .specialUse],
         callback: startCallback,
       );
 

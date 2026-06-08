@@ -48,11 +48,11 @@ class MqttService {
       client.connectionStatus?.state ?? MqttConnectionState.faulted;
 
   Future<void> connect() async {
-    if (!_initialized) _setupClient();
-
-    _initialized = true;
-
     try {
+      if (!_initialized) _setupClient();
+
+      _initialized = true;
+
       debugPrint('MQTT connecting...');
 
       connectionState = MqttConnectionStateCustom.connecting;
@@ -123,13 +123,16 @@ class MqttService {
     final builder = MqttClientPayloadBuilder();
 
     builder.addString(json);
-
-    client.publishMessage(
-      topic,
-      MqttQos.atLeastOnce,
-      builder.payload!,
-      retain: true,
-    );
+    try {
+      client.publishMessage(
+        topic,
+        MqttQos.atLeastOnce,
+        builder.payload!,
+        retain: true,
+      );
+    } catch (e) {
+      print('PUBLISH EXCEPTIOn $e');
+    }
   }
 
   void disconnect() {
