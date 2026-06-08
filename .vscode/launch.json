@@ -34,7 +34,6 @@
             "type": "dart",
             "args": [
                 "--dart-define-from-file=.env",
-
             ]
         },
         {
@@ -49,7 +48,10 @@
             "cwd": "gps_logger",
             "request": "launch",
             "type": "dart",
-            "flutterMode": "release"
+            "flutterMode": "release",
+            "args": [
+                "--dart-define-from-file=.env",
+            ]
         }
     ]
 }

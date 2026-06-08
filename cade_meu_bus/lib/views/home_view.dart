@@ -43,7 +43,6 @@ class _HomeViewState extends State<HomeView> {
   // todo - implementar botão de centralização fixada em ônibus, baseado no toque do icone.
   /// a visualização do mapa pode ficar fixa em um determinado ônibus, sendo necessário apenas apertar sobre o icone
   /// do onibus, mas a ainda deve permitir navegar, aumentar ou diminuir zoom, etc
-  // todo - implementar direção fixa do icone do onibus para o topo da tela
 
   @override
   Widget build(BuildContext context) {

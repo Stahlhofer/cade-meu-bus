@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gps_logger/controllers/tracker_controller.dart';
 import 'package:path_provider/path_provider.dart';
@@ -124,26 +125,27 @@ class _ConfigViewState extends State<ConfigView> {
 
             const SizedBox(height: 15),
 
-            Row(
-              mainAxisAlignment: .spaceBetween,
-              children: [
-                Text(
-                  'Simulação de posições',
+            if (kDebugMode)
+              Row(
+                mainAxisAlignment: .spaceBetween,
+                children: [
+                  Text(
+                    'Simulação de posições',
 
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
 
-                    color: Colors.grey.shade600,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
-                ),
 
-                Switch(
-                  value: simulation,
-                  onChanged: (value) =>
-                      setState(() => simulation = value),
-                ),
-              ],
-            ),
+                  Switch(
+                    value: simulation,
+                    onChanged: (value) =>
+                        setState(() => simulation = value),
+                  ),
+                ],
+              ),
 
             /// LOCAL DE ARMAZENAMENTO
             const Spacer(),

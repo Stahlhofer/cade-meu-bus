@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../models/bus_config.dart';
 import '../models/bus_data.dart';
@@ -56,6 +57,7 @@ class SessionService {
     if (useMockData) {
       await loadMockData();
     }
+    WakelockPlus.enable();
 
     await mqttService.connect();
 
@@ -137,6 +139,8 @@ class SessionService {
   }
 
   void stop() async {
+    WakelockPlus.disable();
+
     // cancela o loop de envio de dados
     timer?.cancel();
 
