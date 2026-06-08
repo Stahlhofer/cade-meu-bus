@@ -128,6 +128,7 @@ class MqttService {
       topic,
       MqttQos.atLeastOnce,
       builder.payload!,
+      retain: true,
     );
   }
 

@@ -24,7 +24,7 @@ class _TrackerViewState extends State<TrackerView> {
   void _onControllerChanged() {
     print("CALLER CONTROLLER CHANGE");
     // Se estivermos com um ônibus em foco, atualiza a posição da câmera para seguir
-    final bus = controller.allBuses.firstOrNull;
+    final bus = controller.allBuses.lastOrNull;
 
     if (bus != null) {
       final point = LatLng(

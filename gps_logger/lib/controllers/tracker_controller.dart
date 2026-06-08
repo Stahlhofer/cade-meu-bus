@@ -90,6 +90,9 @@ class TrackerController extends ChangeNotifier {
       sessionActive = false;
       connected = false;
       sessionBlocked = true;
+
+      await notification.cancelAllNotifications();
+
       notifyListeners();
 
       // Timer de 2 segundos de bloqueio
